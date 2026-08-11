@@ -10,12 +10,20 @@
 # everything that must stay out has to be repeated here.
 
 # ── the corpus: 987 MB of source PDFs, used by no build step ─────────────────
-# The app reads exactly one content file — apps/mobile/assets/content/
-# studymate.db — which the export produces and which IS uploaded.
-content/
-dist/
-apps/api/
-tools/
+# ANCHORED WITH A LEADING SLASH, and that is the whole point.
+#
+# `content/` unanchored matches a directory named `content` at ANY depth, so it
+# also excluded apps/mobile/assets/content/studymate.db — the question bank.
+# The upload then had no database, Metro could not resolve the require() in
+# src/db/content.ts, and the build died in the "Bundle JavaScript" phase with
+# no message beyond "Unknown error".
+#
+# A leading slash pins each pattern to the repository root, which is what was
+# meant: exclude /content, keep apps/mobile/assets/content.
+/content/
+/dist/
+/apps/api/
+/tools/
 
 # ── build output, caches, native projects EAS regenerates ────────────────────
 node_modules/
