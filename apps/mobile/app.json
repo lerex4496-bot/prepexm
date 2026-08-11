@@ -7,12 +7,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#fdfbf4",
-      "resizeMode": "contain",
-      "image": "./assets/splash-icon.png"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "in.studymate.app"
@@ -50,7 +44,15 @@
           ]
         }
       ],
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#fdfbf4",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain"
+        }
+      ],
       "expo-sqlite",
       "expo-asset",
       [

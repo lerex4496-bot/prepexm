@@ -32,17 +32,22 @@ $Emails = @{
 # you. Commits stay attributed; the address stops being public.
 
 function Show-State {
-    $active = (gh api user --jq .login 2>$null)
+    # No 2>$null here. In Windows PowerShell 5.1, redirecting a native
+    # command's stderr wraps its output in ErrorRecords and this came back
+    # empty — the script then reported '(not signed in)' while gh was signed
+    # in. stderr is captured by the host anyway; suppressing it cost accuracy
+    # for no benefit.
+    $active = try { (gh api user --jq .login) } catch { $null }
     if (-not $active) { $active = '(not signed in)' }
-    $gname = (git config user.name 2>$null)
-    $gemail = (git config user.email 2>$null)
+    $gname = try { (git config user.name) } catch { $null }
+    $gemail = try { (git config user.email) } catch { $null }
     if (-not $gname) { $gname = '(unset)' }
     if (-not $gemail) { $gemail = '(unset)' }
 
     Write-Host "pushes as   : $active"
     Write-Host "commits as  : $gname <$gemail>"
     if (Test-Path .git) {
-        $remote = (git remote get-url origin 2>$null)
+        $remote = try { (git remote get-url origin) } catch { $null }
         if (-not $remote) { $remote = '(none)' }
         Write-Host "remote      : $remote"
     }
@@ -88,7 +93,7 @@ git config $scope user.email $Emails[$Account]
 
 # Without this, git can keep using a cached credential and push as whoever was
 # active before — the exact confusion this script exists to remove.
-gh auth setup-git --hostname github.com 2>$null
+gh auth setup-git --hostname github.com
 
 Write-Host "switched ($($scope.TrimStart('-')) git identity)"
 Write-Host ''
