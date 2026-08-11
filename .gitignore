@@ -1,0 +1,66 @@
+# ── secrets ───────────────────────────────────────────────────────────────────
+# A key pushed to GitHub is public the moment it lands, and rewriting history
+# does not un-publish it — GitHub keeps unreferenced objects reachable, and
+# scrapers index public pushes within seconds. Rotation is the only real fix,
+# so the priority is never pushing one.
+*.env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.keystore
+*.jks
+google-services.json
+
+# ── source corpus: 987 MB, and not ours to redistribute ───────────────────────
+# CTET question papers are CBSE copyright; NCERT textbooks are NCERT copyright.
+# Downloading them for personal study is one thing; republishing them from a
+# GitHub repository is redistribution, and a public repo is publication.
+#
+# Nothing here is needed to build or run the app. The pipeline regenerates it
+# from tools/ctet_fetch.py and tools/ncert_fetch.py, and the only artefact the
+# app actually reads is the exported bundle, which IS committed.
+content/raw/
+content/parsed/
+content/_inbox/
+
+# ── build output and caches ───────────────────────────────────────────────────
+node_modules/
+.expo/
+dist/
+web-build/
+.export-check/
+apps/mobile/android/
+apps/mobile/ios/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# ── local noise ───────────────────────────────────────────────────────────────
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+.octogent/
+.claude-flow/
+.idea/
+.vscode/
+
+# ── generated during a run, not worth versioning ──────────────────────────────
+apps/api/*.log
+apps/api/*.json.tmp
+# Scratch files from manual API testing. tok.txt held a live session token and
+# was caught one command before a push — hence the deliberately wide net.
+apps/api/tok.txt
+apps/api/*.tmp.json
+apps/api/req*.json
+apps/api/r[0-9].json
+apps/api/q.json
+apps/api/snap.json
+apps/api/empty.json
+apps/api/forced.json
+apps/api/f.json
+*.tmp.json

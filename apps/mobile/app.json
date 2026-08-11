@@ -1,0 +1,92 @@
+{
+  "expo": {
+    "name": "StudyMate",
+    "slug": "studymate",
+    "scheme": "studymate",
+    "version": "0.2.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#fdfbf4",
+      "resizeMode": "contain",
+      "image": "./assets/splash-icon.png"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "in.studymate.app"
+    },
+    "android": {
+      "package": "in.studymate.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#fdfbf4",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Mukta-Regular.ttf",
+            "./assets/fonts/Mukta-Medium.ttf",
+            "./assets/fonts/Mukta-SemiBold.ttf",
+            "./assets/fonts/Mukta-Bold.ttf",
+            "./assets/fonts/Mukta-ExtraBold.ttf",
+            "./assets/fonts/MuktaVaani-Regular.ttf",
+            "./assets/fonts/MuktaVaani-Medium.ttf",
+            "./assets/fonts/MuktaVaani-SemiBold.ttf",
+            "./assets/fonts/MuktaVaani-Bold.ttf",
+            "./assets/fonts/MuktaVaani-ExtraBold.ttf"
+          ]
+        }
+      ],
+      "expo-splash-screen",
+      "expo-sqlite",
+      "expo-asset",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "enablePngCrunchInReleaseBuilds": true
+          }
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "StudyMate uses your photos so you can ask about a question from a book or handout.",
+          "cameraPermission": "StudyMate uses the camera so you can photograph a question instead of typing it out."
+        }
+      ],
+      "./plugins/withAbiFilters",
+      "./plugins/withBackupRules"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7532f12f-a91d-4329-b0d5-6cdec48bbc28"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/7532f12f-a91d-4329-b0d5-6cdec48bbc28"
+    }
+  }
+}

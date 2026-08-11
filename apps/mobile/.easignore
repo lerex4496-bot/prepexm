@@ -1,0 +1,38 @@
+# What NOT to upload to the EAS build server.
+#
+# Without this the archive was 1.1 GB and took 3m38s to upload, because the
+# whole source corpus went with it — raw CTET booklets, NCERT textbook PDFs,
+# parsed JSON. None of it is used by the Android build: the app reads exactly
+# one content file, assets/content/studymate.db, which the export produces and
+# which IS uploaded.
+#
+# .easignore replaces .gitignore for build uploads rather than adding to it, so
+# anything that must stay excluded has to be repeated here.
+
+# ── the corpus (hundreds of MB of source PDFs) ────────────────────────────────
+../../content/
+../../dist/
+../../tools/
+../../apps/api/
+
+# ── build output and caches ───────────────────────────────────────────────────
+android/
+ios/
+.expo/
+node_modules/
+dist/
+web-build/
+
+# ── local noise ───────────────────────────────────────────────────────────────
+*.log
+*.tmp
+.DS_Store
+coverage/
+.vscode/
+.idea/
+
+# ── secrets, in case one is ever written here ─────────────────────────────────
+.env
+.env.local
+*.keystore
+*.jks

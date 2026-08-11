@@ -1,0 +1,33 @@
+exam,tier,subject,klass,medium,part,code,url,ok,bytes,note
+NEET,CORE,Biology,11,en,1,kebo1ps,https://ncert.nic.in/textbook/pdf/kebo1ps.pdf,True,2951992,
+NEET,CORE,Biology,12,en,1,lebo1ps,https://ncert.nic.in/textbook/pdf/lebo1ps.pdf,True,573875,
+NEET,CORE,Physics,11,en,1,keph1ps,https://ncert.nic.in/textbook/pdf/keph1ps.pdf,True,1890608,
+NEET,CORE,Physics,11,en,2,keph2ps,https://ncert.nic.in/textbook/pdf/keph2ps.pdf,True,1443978,
+NEET,CORE,Physics,12,en,1,leph1ps,https://ncert.nic.in/textbook/pdf/leph1ps.pdf,True,2611580,
+NEET,CORE,Physics,12,en,2,leph2ps,https://ncert.nic.in/textbook/pdf/leph2ps.pdf,True,1718367,
+NEET,CORE,Chemistry,11,en,1,kech1ps,https://ncert.nic.in/textbook/pdf/kech1ps.pdf,True,2421864,
+NEET,CORE,Chemistry,11,en,2,kech2ps,https://ncert.nic.in/textbook/pdf/kech2ps.pdf,True,1612754,
+NEET,CORE,Chemistry,12,en,1,lech1ps,https://ncert.nic.in/textbook/pdf/lech1ps.pdf,True,2854404,
+NEET,CORE,Chemistry,12,en,2,lech2ps,https://ncert.nic.in/textbook/pdf/lech2ps.pdf,True,2388903,
+CTET,CORE,Mathematics,1,en,1,aejm1ps,https://ncert.nic.in/textbook/pdf/aejm1ps.pdf,True,7878625,Joyful Mathematics
+CTET,CORE,Mathematics,2,en,1,bejm1ps,https://ncert.nic.in/textbook/pdf/bejm1ps.pdf,True,3855895,Joyful Mathematics
+CTET,CORE,Mathematics,3,en,1,cemm1ps,https://ncert.nic.in/textbook/pdf/cemm1ps.pdf,True,7201002,Math Mela
+CTET,CORE,Mathematics,5,en,1,eemh1ps,https://ncert.nic.in/textbook/pdf/eemh1ps.pdf,True,7147449,Math-Magic
+CTET,CORE,Mathematics,6,en,1,fegp1ps,https://ncert.nic.in/textbook/pdf/fegp1ps.pdf,True,2983798,Ganita Prakash
+CTET,CORE,Mathematics,7,en,1,gegp1ps,https://ncert.nic.in/textbook/pdf/gegp1ps.pdf,True,2727751,Ganita Prakash
+CTET,CORE,Mathematics,8,en,1,hemh1ps,https://ncert.nic.in/textbook/pdf/hemh1ps.pdf,True,1037621,Mathematics
+CTET,CORE,EVS,3,en,1,ceev1ps,https://ncert.nic.in/textbook/pdf/ceev1ps.pdf,True,8216668,Looking Around
+CTET,CORE,EVS,4,en,1,deev1ps,https://ncert.nic.in/textbook/pdf/deev1ps.pdf,True,8967069,Looking Around
+CTET,CORE,EVS,5,en,1,eeev1ps,https://ncert.nic.in/textbook/pdf/eeev1ps.pdf,True,2914002,Looking Around
+CTET,CORE,Science,6,en,1,fecu1ps,https://ncert.nic.in/textbook/pdf/fecu1ps.pdf,True,3089282,Curiosity
+CTET,CORE,Science,7,en,1,gecu1ps,https://ncert.nic.in/textbook/pdf/gecu1ps.pdf,True,4268625,Curiosity
+CTET,CORE,Science,8,en,1,hesc1ps,https://ncert.nic.in/textbook/pdf/hesc1ps.pdf,True,1354269,Science
+CTET,CORE,Hindi,1,hi,1,ahsr1ps,https://ncert.nic.in/textbook/pdf/ahsr1ps.pdf,True,6265490,Sarangi
+CTET,CORE,Hindi,2,hi,1,bhsr1ps,https://ncert.nic.in/textbook/pdf/bhsr1ps.pdf,True,6689678,Sarangi
+CTET,CORE,Hindi,6,hi,1,fhml1ps,https://ncert.nic.in/textbook/pdf/fhml1ps.pdf,True,5640282,Malhar
+CTET,CORE,Hindi,7,hi,1,ghml1ps,https://ncert.nic.in/textbook/pdf/ghml1ps.pdf,True,8335716,Malhar
+CTET,CORE,Hindi,7,hi,1,ghvs1ps,https://ncert.nic.in/textbook/pdf/ghvs1ps.pdf,True,923542,Vasant
+CTET,CORE,English,1,en,1,aemr1ps,https://ncert.nic.in/textbook/pdf/aemr1ps.pdf,True,6322092,Mridang
+CTET,CORE,English,2,en,1,bemr1ps,https://ncert.nic.in/textbook/pdf/bemr1ps.pdf,True,2812044,Mridang
+CTET,CORE,English,3,en,1,cesa1ps,https://ncert.nic.in/textbook/pdf/cesa1ps.pdf,True,1956951,Santoor
+CTET,CORE,English,5,en,1,eeen1ps,https://ncert.nic.in/textbook/pdf/eeen1ps.pdf,True,9964401,Marigold

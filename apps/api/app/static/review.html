@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StudyMate — Content Review</title>
+<style>
+  /* Deliberately NOT the Warm Editorial student design system. This is an
+     internal throughput tool: dense, high-contrast, keyboard-first. */
+  :root{
+    --bg:#12141a; --panel:#1a1d26; --panel2:#222634; --line:#2f3444;
+    --ink:#e8eaf2; --ink2:#a8adc0; --muted:#767c93;
+    --ok:#3ecf7a; --warn:#f0b429; --bad:#f2555a; --accent:#7c9cff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 ui-sans-serif,system-ui,"Segoe UI",sans-serif;
+       background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column}
+  header{display:flex;gap:16px;align-items:center;padding:8px 14px;
+         border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  header h1{font-size:14px;margin:0;font-weight:700;letter-spacing:.06em}
+  .pill{padding:2px 8px;border-radius:99px;border:1px solid var(--line);
+        font-size:12px;color:var(--ink2);background:var(--panel2)}
+  .pill b{color:var(--ink)}
+  select,button,input{font:inherit;background:var(--panel2);color:var(--ink);
+        border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+  button{cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  main{flex:1;display:grid;grid-template-columns:260px 1fr 1fr;min-height:0}
+  .col{min-height:0;overflow:auto}
+  #list{border-right:1px solid var(--line);background:var(--panel)}
+  .row{padding:7px 10px;border-bottom:1px solid var(--line);cursor:pointer;font-size:12px}
+  .row:hover{background:var(--panel2)}
+  .row.sel{background:#2b3350;border-left:3px solid var(--accent)}
+  .row .n{color:var(--muted)}
+  .row .w{color:var(--warn)}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:99px;margin-right:5px}
+  .d-pending{background:var(--muted)} .d-approved{background:var(--ok)} .d-rejected{background:var(--bad)}
+  #src{border-right:1px solid var(--line);background:#0d0f14;display:flex;flex-direction:column}
+  #src img{width:100%;height:auto;display:block}
+  .srchead{padding:6px 10px;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px}
+  #detail{padding:14px 16px}
+  .fieldrow{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:5px 0;
+            border-bottom:1px solid var(--line);align-items:start}
+  .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+  .v{white-space:pre-wrap;word-break:break-word}
+  .hi{font-size:16px;line-height:1.85}   /* Devanagari needs the extra leading */
+  .opt{display:grid;grid-template-columns:26px 1fr;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
+  .opt.correct{background:#14301f;border-radius:5px;padding-left:5px}
+  .lab{font-weight:700;color:var(--ink2)}
+  .flags{color:var(--warn);font-size:12.5px}
+  .bad{color:var(--bad)}
+  .tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;
+       border:1px solid var(--line);color:var(--ink2);margin-right:4px}
+  .tag.exact{border-color:var(--ok);color:var(--ok)}
+  .tag.none{border-color:var(--muted);color:var(--muted)}
+  .actions{position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);
+           padding:9px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .actions .sp{flex:1}
+  .btn-ok{background:#17351f;border-color:#2c6b3f;color:#b7f0c6}
+  .btn-bad{background:#3a1a1c;border-color:#7a3033;color:#f5b8ba}
+  kbd{background:#0e1016;border:1px solid var(--line);border-radius:4px;
+      padding:0 5px;font-size:11px;color:var(--ink2)}
+  .empty{padding:30px;color:var(--muted);text-align:center}
+  textarea{width:100%;background:#0e1016;color:var(--ink);border:1px solid var(--line);
+           border-radius:6px;padding:6px;font:inherit;min-height:64px}
+  .audit{font-size:12px;color:var(--ink2)}
+  .audit div{padding:3px 0;border-bottom:1px dotted var(--line)}
+
+  /* Providers panel */
+  .modal{position:fixed;inset:0;background:#000a;display:none;z-index:50;
+         align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+  .modal.on{display:flex}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+         width:min(1080px,100%);padding:18px}
+  .sheet h2{margin:0 0 4px;font-size:15px;letter-spacing:.08em}
+  .sheet .hint{color:var(--muted);font-size:12px;margin-bottom:14px;line-height:1.5}
+  table.prov{width:100%;border-collapse:collapse;font-size:12px}
+  table.prov th{text-align:left;color:var(--muted);font-weight:500;padding:6px 8px;
+                border-bottom:1px solid var(--line);white-space:nowrap}
+  table.prov td{padding:6px 8px;border-bottom:1px dotted var(--line);vertical-align:middle}
+  table.prov input,table.prov select{background:#0e1016;color:var(--ink);
+       border:1px solid var(--line);border-radius:5px;padding:4px 6px;font:inherit;font-size:12px}
+  table.prov tr.off{opacity:.45}
+  .route{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
+  .route .pill{font-size:11px}
+  .pill.warn{border-color:#7a5a20;color:#e8c37a}
+  .pill.bad{border-color:#7a3033;color:#f5b8ba}
+  .pill.good{border-color:#2c6b3f;color:#b7f0c6}
+</style>
+</head>
+<body>
+<header>
+  <h1>CONTENT REVIEW</h1>
+  <select id="fPaper"><option value="">All papers</option></select>
+  <select id="fStatus">
+    <option value="pending">Pending</option>
+    <option value="all">All</option>
+    <option value="approved">Approved</option>
+    <option value="rejected">Rejected</option>
+  </select>
+  <label class="pill"><input type="checkbox" id="fFlag" style="vertical-align:-1px"> flagged only</label>
+  <span class="sp" style="flex:1"></span>
+  <span class="pill" id="stats">…</span>
+  <button id="bulk" title="Approves only questions with no validator flags">Bulk approve clean</button>
+  <button id="openProviders" title="Model endpoints and per-role routing">Providers</button>
+</header>
+
+<div class="modal" id="provModal">
+  <div class="sheet">
+    <h2>MODEL PROVIDERS</h2>
+    <div class="hint">
+      Routing is by <b>role</b>, not by vendor. A role with nothing configured falls back
+      to a related role and the result is <b>labelled</b> as single-stage — VISION and EMBED
+      never fall back, because a text model cannot see or embed.<br>
+      Keys are never sent back to this page. Leave the key field blank to keep the stored one;
+      type a new value only to replace it. Prefer <b>key env</b> (e.g. <code>NVIDIA_API_KEY</code>),
+      which keeps the secret in <code>.env</code> and out of the database.
+    </div>
+    <div class="route" id="provRouting"></div>
+    <table class="prov">
+      <thead><tr>
+        <th>Role</th><th>Name</th><th>Model</th><th>Base URL</th>
+        <th>Key env</th><th>New key</th><th>Prio</th><th>Tokens</th><th>On</th><th></th>
+      </tr></thead>
+      <tbody id="provRows"></tbody>
+    </table>
+    <div class="actions" style="position:static;border-top:0;padding-left:0">
+      <button id="provAdd">Add provider</button>
+      <button id="provSeed" title="Insert any missing defaults. Never overwrites your edits.">Restore defaults</button>
+      <span class="sp"></span>
+      <span class="pill" id="provMsg"></span>
+      <button id="provClose">Close <kbd>Esc</kbd></button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="col" id="list"></div>
+
+  <div class="col" id="src">
+    <div class="srchead" id="srchead">source page</div>
+    <div id="srcimg"></div>
+  </div>
+
+  <div class="col" id="detailwrap">
+    <div id="detail" class="empty">Select a question</div>
+  </div>
+</main>
+
+<div class="actions">
+  <button class="btn-ok" id="aApprove">Approve <kbd>Enter</kbd></button>
+  <button id="aEdit">Edit <kbd>E</kbd></button>
+  <button class="btn-bad" id="aReject">Reject <kbd>R</kbd></button>
+  <span class="sp"></span>
+  <span class="pill"><kbd>J</kbd>/<kbd>K</kbd> next / prev</span>
+  <span class="pill" id="pos">—</span>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let items = [], idx = -1, current = null, editing = false;
+
+// Escapes quotes too, not just &<>: this is interpolated into HTML ATTRIBUTES
+// (value="${esc(...)}") in the providers panel, where a stray double quote
+// would break out of the attribute. Harmless in text contexts.
+const esc = s => (s??'').toString().replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function loadStats(){
+  const s = await (await fetch('/api/stats')).json();
+  const b = s.byStatus || {};
+  $('#stats').innerHTML =
+    `total <b>${s.total||0}</b> · approved <b>${b.approved||0}</b> · pending <b>${b.pending||0}</b> · rejected <b>${b.rejected||0}</b>`;
+  const sel = $('#fPaper');
+  if (sel.options.length <= 1) {
+    for (const p of s.byPaper||[]) {
+      const o = document.createElement('option');
+      o.value = p.paperId;
+      o.textContent = `${p.paperType} ${p.setCode} — ${p.approved}/${p.total} approved`;
+      sel.appendChild(o);
+    }
+  }
+}
+
+async function loadQueue(){
+  const q = new URLSearchParams({
+    status: $('#fStatus').value,
+    flagged_only: $('#fFlag').checked ? 'true' : 'false',
+  });
+  if ($('#fPaper').value) q.set('paper_id', $('#fPaper').value);
+  const r = await (await fetch('/api/queue?'+q)).json();
+  items = r.items || [];
+  renderList();
+  if (items.length) select(0); else { current=null; $('#detail').className='empty'; $('#detail').textContent='Nothing in this queue'; $('#srcimg').innerHTML=''; }
+}
+
+function renderList(){
+  $('#list').innerHTML = items.map((it,i)=>`
+    <div class="row ${i===idx?'sel':''}" data-i="${i}">
+      <span class="dot d-${it.reviewStatus}"></span>
+      <b>Q${it.number}</b> <span class="n">${esc(it.paperType||'')} ${esc(it.setCode||'')}</span>
+      ${it.warnings.length?`<div class="w">⚠ ${esc(it.warnings[0])}</div>`:''}
+      <div class="n">${esc(it.stemPreview)}…</div>
+    </div>`).join('');
+  [...document.querySelectorAll('.row')].forEach(el=>
+    el.onclick = ()=> select(+el.dataset.i));
+}
+
+async function select(i){
+  if (i<0 || i>=items.length) return;
+  idx = i; editing = false;
+  renderList();
+  document.querySelector('.row.sel')?.scrollIntoView({block:'nearest'});
+  $('#pos').textContent = `${i+1} / ${items.length}`;
+  const q = await (await fetch('/api/questions/'+items[i].id)).json();
+  current = q;
+  current._validation = await (await fetch(`/api/questions/${q.id}/validate`)).json();
+  renderDetail(q);
+  $('#srchead').textContent =
+    `${q.source.pdf ? q.source.pdf.split(/[\\/]/).pop() : '—'} · page ${(q.source.hindiPage ?? q.source.page ?? 0)+1}`;
+  $('#srcimg').innerHTML = `<img src="/api/questions/${q.id}/page.png?dpi=130" alt="source page">`;
+}
+
+function methodTag(m){
+  if (!m) return '<span class="tag none">not extracted</span>';
+  return `<span class="tag ${m==='EXACT'?'exact':''}">${esc(m)}</span>`;
+}
+
+function renderDetail(q){
+  const d = $('#detail'); d.className='';
+  const warn = q.warnings.length
+    ? `<div class="fieldrow"><div class="k">flags</div><div class="flags">${q.warnings.map(w=>'⚠ '+esc(w)).join('<br>')}</div></div>` : '';
+  const v = q._validation || {approvable:true, problems:[]};
+  const block = v.approvable ? '' : `
+    <div class="fieldrow"><div class="k bad">blocked</div><div class="bad">
+      ${v.problems.map(p=>'✕ '+esc(p)).join('<br>')}
+      <div class="n" style="margin-top:6px">Fix these with <kbd>E</kbd>, or approve anyway with an explicit note.</div>
+    </div></div>`;
+  const key = q.answerKey;
+  const keyLine = `${key.correct.join(' / ') || '—'} <span class="n">(raw “${esc(key.raw)}”)</span>`
+    + (key.multiKey ? ' <span class="tag">MULTI-KEY</span>' : '')
+    + (key.status==='bonus' ? ' <span class="tag">BONUS · all options accepted</span>' : '');
+
+  d.innerHTML = `
+    <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
+      <h2 style="margin:0;font-size:18px">Q${q.number}</h2>
+      <span class="pill">${esc(q.paper.paperType)} · set ${esc(q.paper.setCode)} · ${esc(q.paper.sessionLabel)}</span>
+      <span class="pill">part ${esc(q.part)}</span>
+      <span class="pill">conf ${q.confidence}</span>
+      <span class="pill">${esc(q.reviewStatus)}</span>
+    </div>
+    ${warn}
+    ${block}
+    <div class="fieldrow"><div class="k">stem · en</div><div class="v">${esc(q.stem.en)||'<i>empty</i>'}</div></div>
+    <div class="fieldrow"><div class="k">stem · hi</div><div class="v hi">${esc(q.stem.hi)||'<i>—</i>'}</div></div>
+    <div class="fieldrow"><div class="k">options</div><div>
+      ${q.options.map(o=>`
+        <div class="opt ${o.isCorrect?'correct':''}">
+          <div class="lab">(${o.label})${o.isCorrect?' ✓':''}</div>
+          <div><div class="v">${esc(o.en)||'<i>empty</i>'}</div>
+               ${o.hi?`<div class="v hi">${esc(o.hi)}</div>`:''}</div>
+        </div>`).join('')}
+    </div></div>
+    <div class="fieldrow"><div class="k">official key</div><div class="v">${keyLine}</div></div>
+    <div class="fieldrow"><div class="k">extraction</div><div>
+      en ${methodTag(q.extractionMethod.en)} &nbsp; hi ${methodTag(q.extractionMethod.hi)}</div></div>
+    <div class="fieldrow"><div class="k">syllabus tag</div><div class="v">${esc(q.topicId)||'<i>untagged</i>'}</div></div>
+    <div class="fieldrow"><div class="k">explanation · en</div><div class="v">${esc(q.explanation.en)||'<i>none</i>'}</div></div>
+    <div class="fieldrow"><div class="k">explanation · hi</div><div class="v hi">${esc(q.explanation.hi)||'<i>none</i>'}</div></div>
+    <div class="fieldrow"><div class="k">pipeline</div><div id="runs" class="v n">…</div></div>
+    <div class="fieldrow"><div class="k">provenance</div><div class="v n">${esc(JSON.stringify(q.provenance))}</div></div>
+    <div class="fieldrow"><div class="k">source</div><div class="v n">page ${(q.source.page??0)+1} · bbox ${q.source.bbox?esc(JSON.stringify(q.source.bbox)):'—'}</div></div>
+    <div class="fieldrow"><div class="k">audit</div><div class="audit">
+      ${(q.audit||[]).length ? q.audit.map(a=>`<div>${esc(a.at.slice(0,19))} · <b>${esc(a.action)}</b> ${esc(a.field||'')} ${a.old!==null?`<span class="n">“${esc(a.old)}” →</span>`:''} ${a.new!==null?`“${esc(a.new)}”`:''} <span class="n">by ${esc(a.actor)}</span></div>`).join('') : '<i>no history</i>'}
+    </div></div>`;
+
+  renderRuns(q.id);
+}
+
+/* The generation provenance for whatever explanations this question carries.
+
+   A reviewer cannot judge a Hindi explanation from the Hindi alone — they would
+   be checking prose they may not read fluently against nothing. What they can
+   check is the English analysis it was rendering, and whether the mechanical
+   comparison of the two passed. Both are shown, and a FAILED check is loud:
+   the text is still written (deleting it would hide the problem), so the flag
+   is the only thing standing between a bad rendering and approval. */
+async function renderRuns(qid){
+  const el = document.getElementById('runs');
+  if (!el) return;
+  let data;
+  try { data = await fetch(`/api/questions/${qid}/runs`).then(r=>r.json()); }
+  catch { el.innerHTML = '<i>could not load</i>'; return; }
+
+  if (!data.runs.length) { el.innerHTML = '<i>no generated explanations</i>'; return; }
+
+  el.innerHTML = data.runs.map(r => {
+    const badge = r.passed
+      ? '<span class="pill good">checks passed</span>'
+      : `<span class="pill bad">CHECKS FAILED — ${esc((r.verification?.problems||[]).join('; '))}</span>`;
+    const mode = r.mode === 'single_stage'
+      ? '<span class="pill warn">single stage — no separate reasoning pass</span>' : '';
+    const a = r.stage1?.analysis || {};
+    const src = [a.concept, a.why_correct].filter(Boolean).join(' ');
+    return `<div style="padding:6px 0;border-bottom:1px dotted var(--line)">
+      <div><b>${esc(r.lang)}</b> ${badge} ${mode}</div>
+      <div class="n">${esc(r.stage1?.provider||'')} ${r.stage1?.ms||0}ms
+        ${r.stage2?.provider?`→ ${esc(r.stage2.provider)} ${r.stage2.ms}ms`:''}</div>
+      ${src?`<div class="n" style="margin-top:4px">stage 1 said: ${esc(src.slice(0,320))}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderEdit(q){
+  const d = $('#detail');
+  d.innerHTML = `
+    <h2 style="margin:0 0 8px;font-size:18px">Edit Q${q.number}</h2>
+    <div class="fieldrow"><div class="k">stem · en</div><textarea id="e_en">${esc(q.stem.en)}</textarea></div>
+    <div class="fieldrow"><div class="k">stem · hi</div><textarea id="e_hi" class="hi">${esc(q.stem.hi||'')}</textarea></div>
+    ${q.options.map(o=>`
+      <div class="fieldrow"><div class="k">option ${o.label}</div><div>
+        <textarea id="o_${o.label}_en">${esc(o.en)}</textarea>
+        <textarea id="o_${o.label}_hi" class="hi">${esc(o.hi||'')}</textarea>
+        <label class="pill"><input type="checkbox" id="o_${o.label}_c" ${o.isCorrect?'checked':''}> correct</label>
+      </div></div>`).join('')}
+    <div class="fieldrow"><div class="k">syllabus tag</div><input id="e_topic" value="${esc(q.topicId||'')}" style="width:100%"></div>
+    <div class="fieldrow"><div class="k">explanation</div><textarea id="e_exp">${esc(q.explanation.en||'')}</textarea></div>
+    <div style="padding:10px 0;display:flex;gap:8px">
+      <button class="btn-ok" id="saveEdit">Save</button>
+      <button id="cancelEdit">Cancel <kbd>Esc</kbd></button>
+    </div>`;
+  $('#saveEdit').onclick = saveEdit;
+  $('#cancelEdit').onclick = ()=>{ editing=false; renderDetail(current); };
+}
+
+async function saveEdit(){
+  const q = current;
+  const opts = {};
+  for (const o of q.options) {
+    opts[o.label] = {
+      en: $('#o_'+o.label+'_en').value,
+      hi: $('#o_'+o.label+'_hi').value || null,
+      isCorrect: $('#o_'+o.label+'_c').checked,
+    };
+  }
+  const body = {
+    actor: 'reviewer',
+    stem_en: $('#e_en').value,
+    stem_hi: $('#e_hi').value || null,
+    topic_id: $('#e_topic').value || null,
+    explanation_en: $('#e_exp').value || null,
+    options: opts,
+  };
+  const r = await fetch('/api/questions/'+q.id, {
+    method:'PATCH', headers:{'content-type':'application/json'}, body: JSON.stringify(body)});
+  current = await r.json();
+  editing = false;
+  renderDetail(current);
+}
+
+async function decide(kind){
+  if (!current || editing) return;
+  let body = {actor:'reviewer'};
+  if (kind === 'approve' && current._validation && !current._validation.approvable) {
+    // Never let a blocked approval through silently: the reviewer must read
+    // the problems and type a justification, which lands in the audit trail.
+    const note = prompt(
+      'This question FAILS validation:
+
+• ' +
+      current._validation.problems.join('
+• ') +
+      '
+
+Approving anyway is recorded as an override.
+Type a reason to proceed, or Cancel:');
+    if (!note || !note.trim()) return;
+    body.override = true; body.note = note.trim();
+  }
+  const r = await fetch(`/api/questions/${current.id}/${kind}`, {
+    method:'POST', headers:{'content-type':'application/json'},
+    body: JSON.stringify(body)});
+  if (!r.ok) { const e = await r.json().catch(()=>({})); alert('Refused: '+JSON.stringify(e.detail||e)); return; }
+  items[idx].reviewStatus = kind==='approve'?'approved':'rejected';
+  await loadStats();
+  // Advance automatically — approving a clean question should be one keystroke.
+  if (idx < items.length-1) select(idx+1); else renderList();
+}
+
+$('#aApprove').onclick = ()=>decide('approve');
+$('#aReject').onclick  = ()=>decide('reject');
+$('#aEdit').onclick    = ()=>{ if(current){ editing=true; renderEdit(current);} };
+$('#fStatus').onchange = loadQueue;
+$('#fPaper').onchange  = loadQueue;
+$('#fFlag').onchange   = loadQueue;
+$('#bulk').onclick = async ()=>{
+  if (!confirm('Approve all PENDING questions with no validator flags?')) return;
+  const r = await (await fetch('/api/bulk-approve', {method:'POST',
+    headers:{'content-type':'application/json'},
+    body: JSON.stringify({actor:'reviewer', paper_id: $('#fPaper').value || null, only_clean:true})})).json();
+  alert(`Approved ${r.approved} clean questions.`);
+  await loadStats(); await loadQueue();
+};
+
+document.addEventListener('keydown', e=>{
+  // While the Providers sheet is open the review shortcuts must be dead. The
+  // question they act on is hidden behind the modal, so an stray 'r' would
+  // reject content the reviewer cannot even see — the exact silent decision
+  // this whole gate exists to prevent.
+  const provOn = document.getElementById('provModal').classList.contains('on');
+  if (provOn) {
+    if (e.key === 'Escape' && !e.target.matches('textarea,input,select')) provOpen(false);
+    return;
+  }
+  if (e.target.matches('textarea,input,select')) {
+    if (e.key === 'Escape' && editing) { editing=false; renderDetail(current); }
+    return;
+  }
+  if (e.key === 'Enter') { e.preventDefault(); decide('approve'); }
+  else if (e.key.toLowerCase() === 'r') decide('reject');
+  else if (e.key.toLowerCase() === 'e') { if(current){ editing=true; renderEdit(current);} }
+  else if (e.key.toLowerCase() === 'j') select(idx+1);
+  else if (e.key.toLowerCase() === 'k') select(idx-1);
+});
+
+/* ── Providers ─────────────────────────────────────────────────────────────
+   The whole point of this panel is that a dead key or a deprecated model is a
+   form field rather than a code change. Sarvam deprecated two models under us
+   in one week; each time the app silently could not explain anything until
+   someone read a traceback.
+
+   The key field is WRITE-ONLY. The server never returns a secret, so this page
+   cannot show one, and submitting it blank means "keep what you have" — not
+   "erase it". Anything else would wipe the key every time someone renamed a
+   model. */
+const PROV_ROLES = ['REASON','LOCALISE','VISION','CHAT','EMBED'];
+let provData = null;
+
+function provPill(role, r){
+  if (!r || !r.provider) return `<span class="pill bad">${role}: none</span>`;
+  if (r.isFallback) return `<span class="pill warn">${role}: ${r.provider} (fallback via ${r.servedByRole})</span>`;
+  return `<span class="pill good">${role}: ${r.provider}</span>`;
+}
+
+async function loadProviders(){
+  provData = await fetch('/api/providers').then(r=>r.json());
+  document.getElementById('provRouting').innerHTML =
+    PROV_ROLES.map(role => provPill(role, provData.routing[role])).join('');
+
+  document.getElementById('provRows').innerHTML = provData.providers.map(p => {
+    const health = p.lastError
+      ? `<span class="pill bad" title="${esc(p.lastError)}">failed</span>`
+      : p.lastOkAt ? `<span class="pill good">ok ${p.lastLatencyMs}ms</span>` : '';
+    return `<tr data-id="${p.id}" class="${p.enabled?'':'off'}">
+      <td><select data-f="role">${PROV_ROLES.map(r=>`<option ${r===p.role?'selected':''}>${r}</option>`).join('')}</select></td>
+      <td><input data-f="name" value="${esc(p.name)}" size="8"></td>
+      <td><input data-f="model" value="${esc(p.model)}" size="26"></td>
+      <td><input data-f="base_url" value="${esc(p.baseUrl)}" size="24"></td>
+      <td><input data-f="api_key_env" value="${esc(p.keyEnv||'')}" size="14"
+                 placeholder="env var"></td>
+      <td><input data-f="api_key" type="password" size="12"
+                 placeholder="${p.configured ? p.keyHint : 'not set'}"></td>
+      <td><input data-f="priority" value="${p.priority}" size="2"></td>
+      <td><input data-f="max_tokens" value="${p.maxTokens}" size="4"></td>
+      <td><input data-f="enabled" type="checkbox" ${p.enabled?'checked':''}></td>
+      <td style="white-space:nowrap">
+        <button data-a="save">Save</button>
+        <button data-a="check">Test</button>
+        <button data-a="del" class="btn-bad">✕</button>
+        ${health}
+      </td></tr>`;
+  }).join('');
+}
+
+function provRowPatch(tr){
+  const out = {};
+  tr.querySelectorAll('[data-f]').forEach(el => {
+    const f = el.dataset.f;
+    if (el.type === 'checkbox') out[f] = el.checked;
+    else if (f === 'priority' || f === 'max_tokens') out[f] = parseInt(el.value, 10) || 0;
+    else out[f] = el.value;
+  });
+  // Blank means "unchanged". The server drops an empty api_key for the same
+  // reason, but not sending it at all is clearer about the intent.
+  if (!out.api_key) delete out.api_key;
+  if (!out.api_key_env) out.api_key_env = null;
+  return out;
+}
+
+function provSay(msg, bad){
+  const el = document.getElementById('provMsg');
+  el.textContent = msg;
+  el.className = 'pill ' + (bad ? 'bad' : 'good');
+}
+
+document.getElementById('provRows').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-a]');
+  if (!btn) return;
+  const tr = btn.closest('tr');
+  const id = tr.dataset.id;
+
+  if (btn.dataset.a === 'save'){
+    const r = await fetch('/api/providers/'+id, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(provRowPatch(tr))
+    });
+    provSay(r.ok ? 'saved' : 'save failed: ' + (await r.text()).slice(0,120), !r.ok);
+    await loadProviders();
+  }
+  else if (btn.dataset.a === 'check'){
+    provSay('testing…');
+    const d = await fetch('/api/providers/'+id+'/check', {method:'POST'}).then(r=>r.json());
+    provSay(d.ok ? `ok ${d.latencyMs}ms — ${d.reply}` : d.error.slice(0,140), !d.ok);
+    await loadProviders();
+  }
+  else if (btn.dataset.a === 'del'){
+    if (!confirm('Remove this provider?')) return;
+    await fetch('/api/providers/'+id, {method:'DELETE'});
+    await loadProviders();
+  }
+});
+
+document.getElementById('provAdd').addEventListener('click', async () => {
+  const name = prompt('Provider name (e.g. openrouter)'); if (!name) return;
+  const role = (prompt('Role: ' + PROV_ROLES.join(' / '), 'CHAT') || '').toUpperCase();
+  if (!PROV_ROLES.includes(role)) return provSay('unknown role', true);
+  const base_url = prompt('Base URL (OpenAI-compatible, ending in /v1)', 'https://openrouter.ai/api/v1');
+  if (!base_url) return;
+  const model = prompt('Model id'); if (!model) return;
+  const api_key_env = prompt('Env var holding the key (leave blank to paste a key instead)', '');
+  let api_key = null;
+  if (!api_key_env) { api_key = prompt('API key (stored in the database)'); if (!api_key) return; }
+
+  const r = await fetch('/api/providers', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({name, role, base_url, model, api_key, api_key_env: api_key_env || null})
+  });
+  provSay(r.ok ? 'added' : 'failed: ' + (await r.text()).slice(0,120), !r.ok);
+  await loadProviders();
+});
+
+document.getElementById('provSeed').addEventListener('click', async () => {
+  const d = await fetch('/api/providers/seed', {method:'POST'}).then(r=>r.json());
+  provSay(`restored ${d.added} missing default${d.added===1?'':'s'}`);
+  await loadProviders();
+});
+
+function provOpen(on){
+  document.getElementById('provModal').classList.toggle('on', on);
+  if (on) { provSay(''); loadProviders(); }
+}
+document.getElementById('openProviders').addEventListener('click', () => provOpen(true));
+document.getElementById('provClose').addEventListener('click', () => provOpen(false));
+
+loadStats().then(loadQueue);
+</script>
+</body>
+</html>
