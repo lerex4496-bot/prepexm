@@ -1,0 +1,47 @@
+# What NOT to upload to the EAS build server.
+#
+# THIS FILE MUST LIVE AT THE GIT ROOT. EAS archives from the repository root,
+# not from the Expo project directory, so an .easignore inside apps/mobile/ is
+# never read. Mine was there for two builds: the archive stayed 1.1 GB, and the
+# 987 MB of source PDFs sitting inside the project root went to the build
+# worker for Metro to crawl.
+#
+# .easignore REPLACES .gitignore for uploads rather than adding to it, so
+# everything that must stay out has to be repeated here.
+
+# ── the corpus: 987 MB of source PDFs, used by no build step ─────────────────
+# The app reads exactly one content file — apps/mobile/assets/content/
+# studymate.db — which the export produces and which IS uploaded.
+content/
+dist/
+apps/api/
+tools/
+
+# ── build output, caches, native projects EAS regenerates ────────────────────
+node_modules/
+**/node_modules/
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/.expo/
+.expo/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# ── local noise ─────────────────────────────────────────────────────────────
+*.log
+*.tmp
+.DS_Store
+.git/
+.claude/
+.claude-flow/
+.octogent/
+.vscode/
+.idea/
+
+# ── secrets, belt and braces ────────────────────────────────────────────────
+.env
+*.env
+!.env.example
+*.keystore
+*.jks

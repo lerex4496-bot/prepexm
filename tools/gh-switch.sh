@@ -40,8 +40,8 @@ set -euo pipefail
 # show as unattributed even though the push worked.
 declare -A EMAILS=(
   ["JigsTRC"]="jignesh@therealtorsconcierge.com"
-  ["lerex4496-bot"]="lerex4496-bot@users.noreply.github.com"
-  ["lerex118"]="lerex118@users.noreply.github.com"
+  ["lerex4496-bot"]="lerex4496@gmail.com"
+  ["jigs1188"]="parmarjigs1188@gmail.com"
 )
 
 SCOPE="--global"

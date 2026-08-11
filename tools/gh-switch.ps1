@@ -21,9 +21,15 @@ param(
 # has verified, or its noreply address (Settings -> Emails -> keep private).
 $Emails = @{
     'JigsTRC'       = 'jignesh@therealtorsconcierge.com'
-    'lerex4496-bot' = 'lerex4496-bot@users.noreply.github.com'
-    'lerex118'      = 'lerex118@users.noreply.github.com'
+    'lerex4496-bot' = 'lerex4496@gmail.com'
+    'jigs1188'      = 'parmarjigs1188@gmail.com'
 }
+
+# NOTE: these are real addresses, and every commit you push to a PUBLIC repo
+# carries the author email in plain text forever. If you would rather they were
+# not scrapeable, turn on Settings -> Emails -> "Keep my email address private"
+# on each account and use the ID+name@users.noreply.github.com address it gives
+# you. Commits stay attributed; the address stops being public.
 
 function Show-State {
     $active = (gh api user --jq .login 2>$null)
