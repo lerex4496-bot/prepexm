@@ -73,7 +73,8 @@
         }
       ],
       "./plugins/withAbiFilters",
-      "./plugins/withBackupRules"
+      "./plugins/withBackupRules",
+      "./plugins/withReleaseSigning"
     ],
     "experiments": {
       "typedRoutes": true

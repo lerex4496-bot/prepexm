@@ -64,3 +64,10 @@ apps/api/empty.json
 apps/api/forced.json
 apps/api/f.json
 *.tmp.json
+
+# ── signing keys ──────────────────────────────────────────────────────────────
+# The release keystore. Losing it means never being able to update an installed
+# app again — Android rejects an update signed with a different key — so back it
+# up somewhere other than this machine. It must never be committed.
+*.jks
+apps/mobile/android/keystores/
