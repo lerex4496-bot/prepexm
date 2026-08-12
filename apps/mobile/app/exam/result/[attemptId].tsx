@@ -8,6 +8,7 @@ import { useT } from '@/i18n/useT';
 import { getPaper, loadPaperQuestions, type LoadedQuestion, type PaperRow } from '@/db/content';
 import { getAttempt, loadResponses, openLocalDb, type AttemptRow, type MistakeType } from '@/db/local';
 import { explanationFor, optionTextFor, stemFor } from '@/content/localise';
+import { ExplainOnDemand } from '@/content/ExplainOnDemand';
 import { LanguageToggle } from '@/content/LanguageToggle';
 import { Passage } from '@/content/Passage';
 
@@ -246,7 +247,7 @@ export default function ResultScreen() {
                     {t('review.whyWrong').toUpperCase()}
                   </Text>
                   <Text variant="body" tone="secondary" style={{ marginTop: 4 }}>
-                    {explanationFor(q, contentLang)?.text || t('review.noExplanation')}
+                    <ExplainOnDemand question={q} />
                   </Text>
                 </View>
 

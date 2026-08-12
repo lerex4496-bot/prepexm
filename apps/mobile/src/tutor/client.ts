@@ -13,6 +13,7 @@
  */
 
 import { useProfile } from '@/store/profile';
+import { DirectError, askDirect, directAvailable } from '@/ai/direct';
 
 export interface Citation {
   n: number;
@@ -71,6 +72,36 @@ export async function askTutor(params: {
   lang: 'en' | 'hi' | 'gu';
   subject?: string | null;
 }): Promise<TutorAnswer> {
+  // No server configured: call the providers straight from the phone.
+  //
+  // This is a genuine downgrade and is reported as one. The server answers from
+  // retrieved NCERT passages and cites them; direct mode has no corpus, so the
+  // reply is the model's own knowledge with `grounded: false` and no citations.
+  // The UI shows that difference — an uncited answer must not look like a cited
+  // one, because the whole point of the citations is that she can check them.
+  if (!baseUrl() && directAvailable()) {
+    const style =
+      params.lang === 'hi'
+        ? 'Write in Hindi, in Devanagari script.'
+        : params.lang === 'gu'
+          ? 'Write in Gujarati, in Gujarati script.'
+          : 'Write in English.';
+    try {
+      const r = await askDirect({ message: params.question, style });
+      return {
+        answer: r.text,
+        citations: [],
+        grounded: false,
+        reason: 'answered without your textbooks — no sources to show',
+        provider: r.provider,
+      };
+    } catch (e) {
+      throw new TutorUnavailable(
+        e instanceof DirectError ? e.message : 'could not reach the tutor'
+      );
+    }
+  }
+
   return post<TutorAnswer>('/api/tutor/ask', {
     question: params.question,
     lang: params.lang,

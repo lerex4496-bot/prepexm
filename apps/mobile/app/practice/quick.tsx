@@ -11,6 +11,7 @@ import { currentExam, openContentDb, type LoadedQuestion } from '@/db/content';
 import { loadMistakes } from '@/db/mistakes';
 import { AskTutorButton, TutorSheet } from '@/tutor/TutorSheet';
 import { explanationFor, optionTextFor, stemFor } from '@/content/localise';
+import { ExplainOnDemand } from '@/content/ExplainOnDemand';
 import { LanguageToggle } from '@/content/LanguageToggle';
 import { Passage } from '@/content/Passage';
 
@@ -265,7 +266,7 @@ export default function QuickPractice() {
               {t('review.whyWrong').toUpperCase()}
             </Text>
             <Text variant="body" tone="secondary" style={{ marginTop: 4 }}>
-              {explanationFor(q, contentLang)?.text || t('review.noExplanation')}
+              <ExplainOnDemand question={q} />
             </Text>
           </Card>
           {/* Contextual, and only AFTER she has committed to an answer —

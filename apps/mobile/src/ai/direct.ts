@@ -1,0 +1,245 @@
+import Constants from 'expo-constants';
+
+/**
+ * Calling the model providers straight from the phone.
+ *
+ * WHY THIS EXISTS, AND WHAT IT COSTS
+ * ----------------------------------
+ * Normally the app talks to the StudyMate API, which holds the keys and does
+ * retrieval. That needs a server reachable from the phone. For two students
+ * with no server running, the tutor and the explanations were simply dead —
+ * "no API address configured" — which is worse than any of the trade-offs
+ * below.
+ *
+ * So the keys are bundled into the app and it calls the providers directly.
+ *
+ * THE KEYS IN THIS APP ARE EXTRACTABLE. That is not a wording softener, it is
+ * the situation: an APK is a zip, and anyone who can install it can read every
+ * string inside it. This was raised explicitly and chosen deliberately, on the
+ * basis that the APK is shared privately with two people. If it ever spreads
+ * further, the correct response is to rotate both keys, not to try to hide
+ * them better — there is no hiding place in a client binary.
+ *
+ * WHAT THIS MODE DOES AND DOES NOT DO
+ * -----------------------------------
+ * EXPLANATIONS work fully and stay grounded. They are built from the question
+ * stem, its options, and the OFFICIAL ANSWER KEY — all of which ship inside
+ * the content bundle. The model explains a known answer; it never picks one.
+ * That is the same guarantee as the server path.
+ *
+ * The TUTOR CHAT is the part that loses something. Grounding there comes from
+ * retrieval over the NCERT corpus, which lives on the server. Without it the
+ * model answers from its own knowledge, so those replies carry no citations
+ * and are labelled `grounded: false` — see askDirect below. The UI must show
+ * that difference rather than let an ungrounded answer look like a cited one.
+ */
+
+type Extra = {
+  sarvamKey?: string;
+  sarvamModel?: string;
+  nvidiaKey?: string;
+  nvidiaReasonModel?: string;
+};
+
+function extra(): Extra {
+  return (Constants.expoConfig?.extra ?? {}) as Extra;
+}
+
+export function directAvailable(): boolean {
+  const e = extra();
+  return Boolean(e.sarvamKey || e.nvidiaKey);
+}
+
+export class DirectError extends Error {}
+
+interface Provider {
+  name: string;
+  baseUrl: string;
+  key: string;
+  model: string;
+}
+
+function sarvam(): Provider | null {
+  const e = extra();
+  if (!e.sarvamKey) return null;
+  return {
+    name: 'sarvam',
+    baseUrl: 'https://api.sarvam.ai/v1',
+    key: e.sarvamKey,
+    model: e.sarvamModel ?? 'sarvam-105b-conversations',
+  };
+}
+
+function nvidia(): Provider | null {
+  const e = extra();
+  if (!e.nvidiaKey) return null;
+  return {
+    name: 'nvidia',
+    baseUrl: 'https://integrate.api.nvidia.com/v1',
+    key: e.nvidiaKey,
+    model: e.nvidiaReasonModel ?? 'nvidia/nemotron-3-super-120b-a12b',
+  };
+}
+
+async function complete(
+  p: Provider,
+  system: string,
+  user: string,
+  opts: { maxTokens?: number; temperature?: number; timeoutMs?: number } = {}
+): Promise<string> {
+  const ctrl = new AbortController();
+  // Reasoning models spend a long time before emitting anything. 90s is not
+  // generous, it is the floor: nemotron routinely takes 35-60s on one question.
+  const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? 120000);
+  try {
+    const r = await fetch(`${p.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${p.key}` },
+      body: JSON.stringify({
+        model: p.model,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user },
+        ],
+        max_tokens: opts.maxTokens ?? 900,
+        temperature: opts.temperature ?? 0.2,
+      }),
+      signal: ctrl.signal,
+    });
+    if (!r.ok) {
+      const body = await r.text().catch(() => '');
+      throw new DirectError(`${p.name} returned ${r.status}${body ? `: ${body.slice(0, 160)}` : ''}`);
+    }
+    const data = (await r.json()) as {
+      choices?: { message?: { content?: string | null; refusal?: string }; finish_reason?: string }[];
+    };
+    const choice = data.choices?.[0];
+    const text = choice?.message?.content;
+    if (text && text.trim()) return text.trim();
+
+    // A reasoning model that runs out of tokens mid-thought returns a null
+    // content rather than an error, which otherwise surfaces as a blank bubble.
+    if (choice?.finish_reason === 'length') {
+      throw new DirectError(`${p.name} ran out of tokens before answering`);
+    }
+    if (choice?.message?.refusal) throw new DirectError(`${p.name} declined: ${choice.message.refusal}`);
+    throw new DirectError(`${p.name} returned no text`);
+  } catch (e) {
+    if (e instanceof DirectError) throw e;
+    throw new DirectError('could not reach the model provider');
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const LANG_NAME: Record<string, string> = { en: 'English', hi: 'Hindi', gu: 'Gujarati' };
+
+const EXPLAIN_SYSTEM = `You explain answers to questions from Indian competitive exams.
+
+You are given a question, its options, and THE OFFICIAL CORRECT ANSWER published
+by the examining board. The official answer is a FACT you must accept. Never
+contradict it, never argue another option is correct, and never say it looks
+wrong — if it seems odd, give the reasoning that supports it.
+
+Write for a candidate preparing for the exam:
+1. One short paragraph on why the correct option is correct.
+2. Then one line per incorrect option saying why THAT option is wrong. This
+   distractor analysis is the most useful part — it teaches her to recognise
+   plausible-but-wrong options under time pressure.
+
+Be concise and concrete. No preamble, no restating the question, no markdown.
+Write ONLY in {language}.`;
+
+/**
+ * Explain a question, grounded in its official answer key.
+ *
+ * Prefers the reasoning model and falls back to the Indic one. Both are given
+ * the correct answer as a fact, so neither is choosing it — which is why this
+ * stays trustworthy without any server or corpus.
+ */
+export async function explainDirect(params: {
+  stem: string;
+  options: { label: string; text: string }[];
+  correctLabels: string[];
+  lang: 'en' | 'hi' | 'gu';
+  isBonus?: boolean;
+}): Promise<{ text: string; provider: string }> {
+  const language = LANG_NAME[params.lang] ?? 'English';
+  const opts = params.options.map((o) => `(${o.label}) ${o.text}`).join('\n');
+  const extraNote = params.isBonus
+    ? '\nNOTE: the board accepted ALL options here, so every candidate who attempted it got the mark. Say so, and still explain what was being tested.\n'
+    : '';
+
+  const user =
+    `Question: ${params.stem}\n\nOptions:\n${opts}\n\n` +
+    `OFFICIAL CORRECT ANSWER (from the board's final key): ${params.correctLabels.join('/') || 'unknown'}\n` +
+    `${extraNote}\nExplain in ${language}.`;
+
+  // Indic output goes to Sarvam first — it is built for these scripts — and
+  // English to the reasoning model. Each falls back to the other.
+  const preferred = params.lang === 'en' ? [nvidia(), sarvam()] : [sarvam(), nvidia()];
+  const chain = preferred.filter((p): p is Provider => p !== null);
+  if (!chain.length) throw new DirectError('no model keys are bundled in this build');
+
+  let lastError: Error | null = null;
+  for (const p of chain) {
+    try {
+      const text = await complete(p, EXPLAIN_SYSTEM.replace(/\{language\}/g, language), user, {
+        maxTokens: 1200,
+        temperature: 0.2,
+      });
+      return { text, provider: `${p.name}/${p.model}` };
+    } catch (e) {
+      lastError = e as Error;
+    }
+  }
+  throw lastError ?? new DirectError('every provider failed');
+}
+
+const TUTOR_SYSTEM = `You are a study tutor for a student preparing for an Indian
+competitive exam (CTET or NEET).
+
+Answer her question clearly and concretely, at the level of the exam she is
+sitting. Be brief — a few sentences, not an essay. No preamble, no markdown
+headings.
+
+If you are not confident about something, say so plainly rather than guessing.
+She is revising from your answer, so a confident wrong answer costs her marks.
+
+{style}`;
+
+/**
+ * Answer a free question with NO retrieval.
+ *
+ * Returns `grounded: false` because that is the truth: without the NCERT corpus
+ * this is the model's own knowledge, not a cited textbook passage. The caller
+ * is expected to show that, and the Ask screen does.
+ */
+export async function askDirect(params: {
+  message: string;
+  style: string;
+  history?: { role: string; content: string }[];
+}): Promise<{ text: string; provider: string; grounded: false }> {
+  const chain = [sarvam(), nvidia()].filter((p): p is Provider => p !== null);
+  if (!chain.length) throw new DirectError('no model keys are bundled in this build');
+
+  const convo = (params.history ?? [])
+    .slice(-6)
+    .map((t) => `${t.role === 'user' ? 'Student' : 'You'}: ${t.content}`)
+    .join('\n');
+  const user = convo ? `Conversation so far:\n${convo}\n\nStudent: ${params.message}` : params.message;
+
+  let lastError: Error | null = null;
+  for (const p of chain) {
+    try {
+      const text = await complete(p, TUTOR_SYSTEM.replace('{style}', params.style), user, {
+        maxTokens: 800,
+        temperature: 0.3,
+      });
+      return { text, provider: `${p.name}/${p.model}`, grounded: false };
+    } catch (e) {
+      lastError = e as Error;
+    }
+  }
+  throw lastError ?? new DirectError('every provider failed');
+}

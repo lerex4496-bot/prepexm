@@ -163,6 +163,10 @@ const en: Dict = {
 
   // ── review / mistakes ─────────────────────────────────────────────────────
   'review.noExplanation': 'No explanation yet.',
+  'review.explainNow': 'Explain this question',
+  'review.explaining': 'Working it out…',
+  'review.generatedNow': 'Generated just now from the official answer key.',
+  'review.explainFailed': 'Could not generate an explanation.',
   'review.whyWrong': 'Why was this wrong?',
   'review.howWrong': 'What happened?',
   'review.mistake.conceptual': 'Didn’t know the concept',
@@ -239,6 +243,8 @@ const en: Dict = {
   'ask.docSent': 'Adding {name}…',
   'ask.docAdded':
     'Added “{name}” ({pages} pages). It will be searched alongside your textbooks, and cited as your notes.',
+  'ask.noSources':
+    'Answered without your textbooks — no sources to show. Check anything important.',
   'ask.unverified': 'FROM THE WEB · not verified against any textbook',
 
 

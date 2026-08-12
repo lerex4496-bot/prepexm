@@ -106,6 +106,9 @@ export default function AskScreen() {
                   refusal: res.reply ? undefined : (res.reason ?? t('ask.noAnswer')),
                   citations: res.citations,
                   register: res.register.register,
+                  // An answer with no textbook behind it must not look like one
+                  // that has. The bubble renders a visible notice for this.
+                  ungrounded: !res.grounded,
                 }
           )
         );
@@ -404,6 +407,15 @@ function Bubble({ message }: { message: ChatMessage }) {
           <Text variant="body">{message.content}</Text>
         )}
       </View>
+
+      {/* Said plainly, under the answer itself. The citations are what make a
+          tutor answer checkable; without them she is reading the model's own
+          recollection, and she is entitled to know which one she has. */}
+      {!mine && message.ungrounded && !message.failed && !message.refusal ? (
+        <Text variant="caption" tone="muted" style={{ marginTop: 4, maxWidth: '92%' }}>
+          {t('ask.noSources')}
+        </Text>
+      ) : null}
 
       {!mine && message.citations?.length ? (
         <View style={{ marginTop: 4, alignItems: 'flex-start' }}>

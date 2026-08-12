@@ -69,12 +69,14 @@
         "expo-image-picker",
         {
           "photosPermission": "StudyMate uses your photos so you can ask about a question from a book or handout.",
-          "cameraPermission": "StudyMate uses the camera so you can photograph a question instead of typing it out."
+          "cameraPermission": "StudyMate uses the camera so you can photograph a question instead of typing it out.",
+          "microphonePermission": false
         }
       ],
       "./plugins/withAbiFilters",
       "./plugins/withBackupRules",
-      "./plugins/withReleaseSigning"
+      "./plugins/withReleaseSigning",
+      "./plugins/withPermissionTrim"
     ],
     "experiments": {
       "typedRoutes": true

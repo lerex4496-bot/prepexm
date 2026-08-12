@@ -20,6 +20,8 @@
 
 import { useProfile } from '@/store/profile';
 import { TutorUnavailable, type Citation } from './client';
+import { askDirect, directAvailable } from '@/ai/direct';
+import { detectRegister, styleFor } from '@/ai/register';
 
 export type ChatRole = 'user' | 'assistant';
 
@@ -35,6 +37,8 @@ export interface ChatMessage {
   register?: string;
   /** True for web answers — rendered with a visible not-verified badge. */
   unverified?: boolean;
+  /** True when answered with no textbook retrieval behind it. */
+  ungrounded?: boolean;
   pending?: boolean;
   failed?: boolean;
 }
@@ -62,6 +66,33 @@ export async function sendChat(params: {
   subject?: string | null;
 }): Promise<ChatResponse> {
   const base = baseUrl();
+
+  // No server: answer directly, and say plainly that it is ungrounded.
+  //
+  // Register detection still runs on-device, so she is still answered in the
+  // language she wrote in. What is missing is retrieval: no NCERT extracts, so
+  // no citations and no "your books don't cover this" refusal. `grounded:false`
+  // carries that to the UI rather than letting it pass unnoticed.
+  if (!base && directAvailable()) {
+    const reg = detectRegister(params.message);
+    const r = await askDirect({
+      message: params.message,
+      style: styleFor(reg),
+      history: params.history,
+    });
+    return {
+      reply: r.text,
+      grounded: false,
+      reason: 'answered without your textbooks — no sources to show',
+      citations: [],
+      register: { lang: reg.lang, register: reg.register, confidence: reg.confidence, evidence: reg.evidence },
+      retrieval: { query: '', method: 'none (no server, so no textbook search)' },
+      provider: r.provider,
+      isFallback: false,
+      ms: 0,
+    };
+  }
+
   if (!base) throw new TutorUnavailable('no API address configured');
 
   const ctrl = new AbortController();

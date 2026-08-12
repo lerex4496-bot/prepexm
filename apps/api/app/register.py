@@ -32,7 +32,6 @@ gets progressively more wrong. Every message is classified on its own.
 from __future__ import annotations
 
 import re
-import unicodedata
 from dataclasses import dataclass
 
 # ---------------------------------------------------------------------------
@@ -51,7 +50,7 @@ _LATIN = re.compile(r"[A-Za-z]")
 # High-frequency Hindi function words as people actually type them, including
 # the common spelling variants — nobody agrees on how to romanise ह.
 _HINGLISH_WORDS = {
-    "hai", "hain", "hai", "he", "tha", "thi", "the", "hoga", "hogi", "hota", "hoti",
+    "hai", "hain", "he", "tha", "thi", "the", "hoga", "hogi", "hota", "hoti",
     "kya", "kyu", "kyun", "kyon", "kaise", "kaisa", "kaisi", "kab", "kahan", "kaun",
     "kitna", "kitne", "kitni", "konsa", "kaunsa",
     "nahi", "nahin", "nai", "mat", "mujhe", "muje", "mera", "meri", "mere",
@@ -71,14 +70,14 @@ _GUJLISH_WORDS = {
     "nathi", "nai", "mane", "maru", "mari", "mara", "tame", "tamne", "ame", "amne",
     "ane", "pan", "pachi", "ave", "aa", "ae", "tya", "ahi",
     "kaho", "samjavo", "joie", "karo", "karvu", "karta", "hovu", "rahyu",
-    "ketlu", "badhu", "thodu", "saru", "barabar", "kai", "badha",
+    "badhu", "thodu", "saru", "barabar", "kai", "badha",
     "bhai", "matlab", "samaj", "abhyas", "prashna", "javab",
 }
 
 # Words that are common English AND appear in the lists above. Counting them
 # would classify "to me" or "the car" as Hinglish, so they only count when the
 # message already has other evidence.
-_AMBIGUOUS = {"to", "me", "he", "the", "par", "me", "se", "aa", "ae", "pan", "kya"}
+_AMBIGUOUS = {"to", "me", "he", "the", "par", "se", "aa", "ae", "pan", "kya"}
 
 
 @dataclass(frozen=True)

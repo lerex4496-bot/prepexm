@@ -96,7 +96,7 @@ def main() -> int:
         reg.seed(db)
 
         # Fail loudly and immediately rather than a third of the way in.
-        needed = ("REASON", "LOCALISE") if any(l != "en" for l in langs) else ("REASON",)
+        needed = ("REASON", "LOCALISE") if any(x != "en" for x in langs) else ("REASON",)
         for role in needed:
             try:
                 r = reg.resolve(db, role)

@@ -84,6 +84,16 @@ module.exports = function withReleaseSigning(config, opts = {}) {
           `${indent}    storePassword STUDYMATE_UPLOAD_STORE_PASSWORD\n` +
           `${indent}    keyAlias STUDYMATE_UPLOAD_KEY_ALIAS\n` +
           `${indent}    keyPassword STUDYMATE_UPLOAD_KEY_PASSWORD\n` +
+          // All three schemes, not just the modern one. AGP turns v1 (JAR
+          // signing) off when minSdk >= 24 — correct in theory, and
+          // occasionally not in practice: some OEM package installers and file
+          // managers still consult the v1 manifest when sideloading, and reject
+          // the APK with a bare "App not installed" that names no cause.
+          // Enabling all three costs a few hundred KB and removes a whole class
+          // of that failure.
+          `${indent}    enableV1Signing true\n` +
+          `${indent}    enableV2Signing true\n` +
+          `${indent}    enableV3Signing true\n` +
           `${indent}}\n${indent}debug {`
       );
     }

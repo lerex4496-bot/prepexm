@@ -9,9 +9,7 @@ work for the Content Review queue.
 
 from __future__ import annotations
 
-import glob
 import json
-import os
 import sys
 from pathlib import Path
 

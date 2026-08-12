@@ -152,7 +152,7 @@ def main() -> int:
     print(f"  bonus questions (Z=ALL, free mark) : {len(bonus_all)} {bonus_all}")
     print(f"  multi-key questions                : {len(multi_all)} {multi_all}")
     print()
-    print(f"  APPROVED questions      : 0   (approval happens only in Content Review)")
+    print("  APPROVED questions      : 0   (approval happens only in Content Review)")
     print(f"  remaining review queue  : {tot_q}")
     return 0
 
