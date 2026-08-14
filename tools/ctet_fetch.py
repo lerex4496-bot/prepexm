@@ -33,11 +33,13 @@ from pathlib import Path
 
 import urllib.request
 import urllib.error
+import urllib.parse
 import http.cookiejar
 
 ARCHIVE = "https://ctet.nic.in/archive/"
 SESSION_URL = "https://ctet.nic.in/question-paper-{session}/"
 DRIVE_DL = "https://drive.google.com/uc?export=download&id={id}"
+DRIVE_CONFIRM = "https://drive.usercontent.google.com/download"
 
 UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -65,6 +67,10 @@ DRIVE_LINK_RE = re.compile(
     re.S | re.I,
 )
 
+# Hidden fields of Drive's "download anyway" form. The submit button carries no
+# name attribute, so it drops out of the match on its own.
+FORM_INPUT_RE = re.compile(r'<input[^>]+name="([^"]+)"[^>]+value="([^"]*)"', re.I)
+
 
 @dataclass
 class PaperFile:
@@ -88,6 +94,38 @@ def get(url: str, op=None, timeout: int = 180) -> bytes:
     op = op or _opener()
     with op.open(url, timeout=timeout) as r:
         return r.read()
+
+
+def drive_download(drive_id: str, op, timeout: int = 300, tries: int = 3) -> bytes:
+    """Fetch a Drive file, replaying the virus-scan form when one is served.
+
+    Drive refuses to scan anything over ~25MB and hands back an HTML form
+    instead of the bytes. Every December 2022 ZIP is past that limit, so
+    without replaying the form that whole session is unreachable.
+
+    Retries because these hosts drop connections mid-transfer often enough to
+    matter across a 24-file session.
+    """
+    last: Exception | None = None
+    for attempt in range(tries):
+        try:
+            data = get(DRIVE_DL.format(id=drive_id), op, timeout)
+            if data[:2] == b"PK":
+                return data
+            head = data[:6000].decode("utf-8", "replace")
+            if "download-form" not in head:
+                return data  # genuinely not a zip; the caller reports it
+            fields = dict(FORM_INPUT_RE.findall(head))
+            fields.setdefault("id", drive_id)
+            fields.setdefault("export", "download")
+            fields["confirm"] = "t"
+            url = f"{DRIVE_CONFIRM}?{urllib.parse.urlencode(fields)}"
+            return get(url, op, timeout)
+        except (urllib.error.URLError, OSError) as e:
+            last = e
+            if attempt < tries - 1:
+                time.sleep(3 * (attempt + 1))
+    raise last  # type: ignore[misc]
 
 
 def list_session_files(session: str, op=None) -> list[PaperFile]:
@@ -124,7 +162,7 @@ def download(pf: PaperFile, op, dest_dir: Path, pause: float) -> PaperFile:
             data = zip_path.read_bytes()
         else:
             time.sleep(pause)  # be a polite client against Drive
-            data = get(DRIVE_DL.format(id=pf.drive_id), op)
+            data = drive_download(pf.drive_id, op)
             if data[:2] != b"PK":
                 head = data[:200].decode("utf-8", "replace")
                 pf.error = f"not a zip (got {len(data)}b): {head[:120]!r}"

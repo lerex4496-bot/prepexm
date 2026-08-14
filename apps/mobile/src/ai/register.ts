@@ -141,9 +141,17 @@ const STYLE: Record<Register['register'], string> = {
     'Write in Hinglish — conversational Hindi typed in the ROMAN alphabet, the way she wrote to you. ' +
     'Do NOT use Devanagari script. Keep technical and exam terms in English where that is what a ' +
     "student would say ('critical thinking', not a translated coinage).",
+  // Gujarati answers use GUJARATI SCRIPT even when she typed in roman letters.
+  //
+  // This differs deliberately from Hinglish, which mirrors her roman input.
+  // The asymmetry is the student's own call: Hinglish reads naturally in roman
+  // because that is how people write Hindi casually, whereas she reads Gujarati
+  // study material in Gujarati script and wants answers she can put beside her
+  // textbook. Romanised Gujarati is fine to type and awkward to study from.
   gujlish:
-    'Write in Gujlish — conversational Gujarati typed in the ROMAN alphabet, the way she wrote to you. ' +
-    'Do NOT use Gujarati script. Keep technical and exam terms in English where that is what a student would say.',
+    'Write in Gujarati, in GUJARATI SCRIPT — even though she typed in roman letters. ' +
+    'Keep technical and exam terms in English where that is what a student would say ' +
+    "('photosynthesis', not a translated coinage).",
 };
 
 export function styleFor(reg: Register): string {

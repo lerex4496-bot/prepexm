@@ -39,6 +39,15 @@ UA = (
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "content" / "manifests"
 
+# Windows consoles default to cp1252, which cannot encode Devanagari — printing
+# a Hindi book title killed the whole run with a UnicodeEncodeError *after* the
+# network work was done. In an app built for a Hindi-medium student, tooling
+# that falls over on Hindi is a bug, not a display quirk. Unmappable characters
+# degrade to a replacement rather than raising.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 CLASS_CODE = {
     1: "a", 2: "b", 3: "c", 4: "d", 5: "e", 6: "f",
     7: "g", 8: "h", 9: "i", 10: "j", 11: "k", 12: "l",
@@ -101,6 +110,29 @@ CTET_BOOKS = [
     ("en", "English", 2, "bemr1ps", "Mridang"),
     ("en", "English", 3, "cesa1ps", "Santoor"),
     ("en", "English", 5, "eeen1ps", "Marigold"),
+    # ── Social Science, classes 6-8 ────────────────────────────────────────
+    #
+    # The subject CTET Paper II examines as "Social Studies / Social Science",
+    # 60 of its 150 marks — and until now the one subject with no textbook in
+    # the corpus at all. Every Social Studies answer the tutor gave was
+    # therefore ungrounded, and every generated explanation unverifiable.
+    #
+    # NEP 2020 replaced the old three-book split (Our Pasts / geography /
+    # Social and Political Life) with one integrated title, so `hs` and `sp`
+    # codes now 404 — probing found no class 6-8 History or Civics book left on
+    # the site. The replacement is "Exploring Society: India and Beyond", code
+    # `es`, and it exists for all three classes in BOTH media.
+    #
+    # HINDI MATTERS HERE: she sits the paper in Hindi, so the Hindi editions
+    # are the primary source and the English ones the parallel. Every code
+    # below was verified by fetching the PDF and confirming chapter files
+    # resolve, not inferred from the pattern.
+    ("hi", "Social Science", 6, "fhes1ps", "समाज का अध्ययन: भारत और उससे आगे"),
+    ("hi", "Social Science", 7, "ghes1ps", "समाज का अध्ययन: भारत और उससे आगे"),
+    ("hi", "Social Science", 8, "hhes1ps", "समाज का अध्ययन: भारत और उससे आगे"),
+    ("en", "Social Science", 6, "fees1ps", "Exploring Society: India and Beyond"),
+    ("en", "Social Science", 7, "gees1ps", "Exploring Society: India and Beyond"),
+    ("en", "Social Science", 8, "hees1ps", "Exploring Society: India and Beyond"),
 ]
 
 

@@ -1,0 +1,353 @@
+{
+  "sittings": [
+    "2024-07-07",
+    "2024-12-14",
+    "2024-12-15",
+    "2026-02-07",
+    "2026-02-08",
+    "2026-03-01"
+  ],
+  "topics": [
+    {
+      "topicId": "ped_classroom_processes",
+      "name": "Class Room Processes, activities and discourse",
+      "strand": "Pedagogy",
+      "questions": 33,
+      "sittings": 6
+    },
+    {
+      "topicId": "ped_evaluation",
+      "name": "Evaluation",
+      "strand": "Pedagogy",
+      "questions": 29,
+      "sittings": 6
+    },
+    {
+      "topicId": "geo_globe",
+      "name": "Globe",
+      "strand": "Geography",
+      "questions": 18,
+      "sittings": 6
+    },
+    {
+      "topicId": "ped_concept_nature",
+      "name": "Concept & Nature of Social Science/Social Studies",
+      "strand": "Pedagogy",
+      "questions": 18,
+      "sittings": 6
+    },
+    {
+      "topicId": "geo_environment",
+      "name": "Environment in its totality: natural and human environment",
+      "strand": "Geography",
+      "questions": 15,
+      "sittings": 6
+    },
+    {
+      "topicId": "spl_constitution",
+      "name": "The Constitution",
+      "strand": "Social and Political Life",
+      "questions": 15,
+      "sittings": 6
+    },
+    {
+      "topicId": "spl_diversity",
+      "name": "Diversity",
+      "strand": "Social and Political Life",
+      "questions": 14,
+      "sittings": 6
+    },
+    {
+      "topicId": "spl_government",
+      "name": "Government",
+      "strand": "Social and Political Life",
+      "questions": 14,
+      "sittings": 6
+    },
+    {
+      "topicId": "geo_agriculture",
+      "name": "Agriculture",
+      "strand": "Geography",
+      "questions": 9,
+      "sittings": 6
+    },
+    {
+      "topicId": "geo_air",
+      "name": "Air",
+      "strand": "Geography",
+      "questions": 9,
+      "sittings": 6
+    },
+    {
+      "topicId": "hist_caste_system",
+      "name": "Challenging the Caste System",
+      "strand": "History",
+      "questions": 9,
+      "sittings": 6
+    },
+    {
+      "topicId": "spl_social_justice",
+      "name": "Social Justice and the Marginalised",
+      "strand": "Social and Political Life",
+      "questions": 9,
+      "sittings": 6
+    },
+    {
+      "topicId": "geo_planet_earth",
+      "name": "Planet: Earth in the solar system",
+      "strand": "Geography",
+      "questions": 7,
+      "sittings": 6
+    },
+    {
+      "topicId": "geo_resources",
+      "name": "Resources: Types-Natural and Human",
+      "strand": "Geography",
+      "questions": 9,
+      "sittings": 5
+    },
+    {
+      "topicId": "spl_making_a_living",
+      "name": "Making a Living",
+      "strand": "Social and Political Life",
+      "questions": 9,
+      "sittings": 5
+    },
+    {
+      "topicId": "hist_women_reform",
+      "name": "Women and reform",
+      "strand": "History",
+      "questions": 8,
+      "sittings": 5
+    },
+    {
+      "topicId": "ped_project_work",
+      "name": "Projects Work",
+      "strand": "Pedagogy",
+      "questions": 8,
+      "sittings": 5
+    },
+    {
+      "topicId": "hist_when_where_how",
+      "name": "When, Where and How",
+      "strand": "History",
+      "questions": 6,
+      "sittings": 5
+    },
+    {
+      "topicId": "ped_critical_thinking",
+      "name": "Developing Critical thinking",
+      "strand": "Pedagogy",
+      "questions": 9,
+      "sittings": 4
+    },
+    {
+      "topicId": "spl_local_government",
+      "name": "Local Government",
+      "strand": "Social and Political Life",
+      "questions": 9,
+      "sittings": 4
+    },
+    {
+      "topicId": "geo_human_environment",
+      "name": "Human Environment: settlement, transport and communication",
+      "strand": "Geography",
+      "questions": 7,
+      "sittings": 4
+    },
+    {
+      "topicId": "hist_distant_lands",
+      "name": "Contacts with Distant lands",
+      "strand": "History",
+      "questions": 6,
+      "sittings": 4
+    },
+    {
+      "topicId": "hist_nationalist_movement",
+      "name": "The Nationalist Movement",
+      "strand": "History",
+      "questions": 5,
+      "sittings": 4
+    },
+    {
+      "topicId": "spl_democracy",
+      "name": "Democracy",
+      "strand": "Social and Political Life",
+      "questions": 5,
+      "sittings": 4
+    },
+    {
+      "topicId": "spl_judiciary",
+      "name": "The Judiciary",
+      "strand": "Social and Political Life",
+      "questions": 5,
+      "sittings": 4
+    },
+    {
+      "topicId": "hist_after_independence",
+      "name": "India After Independence",
+      "strand": "History",
+      "questions": 4,
+      "sittings": 4
+    },
+    {
+      "topicId": "hist_rural_life",
+      "name": "Rural Life and Society",
+      "strand": "History",
+      "questions": 4,
+      "sittings": 4
+    },
+    {
+      "topicId": "spl_gender",
+      "name": "Unpacking Gender",
+      "strand": "Social and Political Life",
+      "questions": 4,
+      "sittings": 4
+    },
+    {
+      "topicId": "hist_company_power",
+      "name": "The Establishment of Company Power",
+      "strand": "History",
+      "questions": 5,
+      "sittings": 3
+    },
+    {
+      "topicId": "hist_regional_cultures",
+      "name": "Regional Cultures",
+      "strand": "History",
+      "questions": 4,
+      "sittings": 3
+    },
+    {
+      "topicId": "hist_creation_empire",
+      "name": "Creation of an Empire",
+      "strand": "History",
+      "questions": 3,
+      "sittings": 3
+    },
+    {
+      "topicId": "hist_new_kings",
+      "name": "New Kings and Kingdoms",
+      "strand": "History",
+      "questions": 3,
+      "sittings": 3
+    },
+    {
+      "topicId": "hist_first_farmers",
+      "name": "The First Farmers and Herders",
+      "strand": "History",
+      "questions": 3,
+      "sittings": 3
+    },
+    {
+      "topicId": "hist_social_change",
+      "name": "Social Change",
+      "strand": "History",
+      "questions": 3,
+      "sittings": 3
+    },
+    {
+      "topicId": "ped_sources",
+      "name": "Sources- Primary & Secondary",
+      "strand": "Pedagogy",
+      "questions": 4,
+      "sittings": 2
+    },
+    {
+      "topicId": "geo_water",
+      "name": "Water",
+      "strand": "Geography",
+      "questions": 4,
+      "sittings": 2
+    },
+    {
+      "topicId": "ped_problems_teaching",
+      "name": "Problems of teaching Social Science/Social Studies",
+      "strand": "Pedagogy",
+      "questions": 3,
+      "sittings": 2
+    },
+    {
+      "topicId": "hist_first_empire",
+      "name": "the first Empire",
+      "strand": "History",
+      "questions": 2,
+      "sittings": 2
+    },
+    {
+      "topicId": "hist_architecture",
+      "name": "Architecture",
+      "strand": "History",
+      "questions": 2,
+      "sittings": 2
+    },
+    {
+      "topicId": "hist_tribal_societies",
+      "name": "Colonialism and Tribal Societies",
+      "strand": "History",
+      "questions": 2,
+      "sittings": 2
+    },
+    {
+      "topicId": "spl_state_government",
+      "name": "State Government",
+      "strand": "Social and Political Life",
+      "questions": 2,
+      "sittings": 2
+    },
+    {
+      "topicId": "hist_early_states",
+      "name": "Early States",
+      "strand": "History",
+      "questions": 2,
+      "sittings": 1
+    },
+    {
+      "topicId": "spl_parliament",
+      "name": "Parliamentary Government",
+      "strand": "Social and Political Life",
+      "questions": 1,
+      "sittings": 1
+    },
+    {
+      "topicId": "hist_first_cities",
+      "name": "The First Cities",
+      "strand": "History",
+      "questions": 1,
+      "sittings": 1
+    },
+    {
+      "topicId": "ped_enquiry_evidence",
+      "name": "Enquiry/Empirical Evidence",
+      "strand": "Pedagogy",
+      "questions": 1,
+      "sittings": 1
+    }
+  ],
+  "repeats": [
+    {
+      "sittings": [
+        "2024-07-07",
+        "2026-03-01"
+      ],
+      "topic": "Globe",
+      "stem": "The opening time of Central Government Offices in India is 9:00 a.m. IST, what will be the local time of opening of the Central Government Offices located at 80� East Longitude near Chennai and 92�45'"
+    },
+    {
+      "sittings": [
+        "2024-12-14",
+        "2026-02-07"
+      ],
+      "topic": "Challenging the Caste System",
+      "stem": "Consider the following statements on non-Brahman movement and choose the valid option : (a) The movement came from non-Brahman castes that had acquired access to education. (b) The movement argued tha"
+    },
+    {
+      "sittings": [
+        "2024-12-14",
+        "2026-02-07"
+      ],
+      "topic": "Diversity",
+      "stem": "_______ refers to a situation where a person does not have resources and opportunities that are available to other persons."
+    }
+  ]
+}

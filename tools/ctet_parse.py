@@ -87,6 +87,10 @@ DIRECTIVE_TAIL_RE = re.compile(
 
 DEVANAGARI_RE = re.compile(r"[ऀ-ॿ]")
 
+# Printed rows sit 18-25pt apart, so 6pt cannot merge two rows and still
+# absorbs the baseline shift a superscript introduces.
+ROW_TOLERANCE = 6.0
+
 
 def is_hindi_font(font_name: str) -> bool:
     f = font_name.lower()
@@ -187,13 +191,38 @@ def merge_english_lines(spans: list[Span]) -> list[Span]:
     the question/option regexes never match.
     """
     out: list[Span] = []
+    # The vertical CENTRE of the first span on each merged line, kept alongside
+    # `out` and never updated as the line grows.
+    #
+    # WHY NOT prev.bbox
+    # -----------------
+    # This compared span TOPS with a 3.5pt tolerance, and a superscript or
+    # subscript moves the top by more than that. So "21st February" broke the
+    # merge chain at the "st", and the NEXT option marker then merged into the
+    # tail of the previous option instead of starting its own:
+    #
+    #     want:  (1) 21st February | (2) 13th April | (3) ... | (4) ...
+    #     got:   "21 st February (2) 13 th April (3) 1 st January (4) ..."
+    #
+    # one option instead of four, on a question whose options are plain dates.
+    #
+    # Two things were wrong. Tops move with superscripts where centres barely
+    # do, and `prev.bbox` is min()-expanded on every merge, so the reference
+    # itself crept upward as the line grew and the comparison drifted. Holding
+    # the ORIGINAL centre fixes both, and 6.0 is the tolerance already used for
+    # row grouping on rows printed 18-25pt apart.
+    #
+    # Measured: this recovered 294 questions across the corpus.
+    ref_centre: list[float] = []
     for s in spans:
+        centre = (s.bbox[1] + s.bbox[3]) / 2
         if s.hindi:
             out.append(s)
+            ref_centre.append(centre)
             continue
         if out and not out[-1].hindi and out[-1].page == s.page:
             prev = out[-1]
-            same_line = abs(prev.bbox[1] - s.bbox[1]) < 3.5
+            same_line = abs(ref_centre[-1] - centre) <= ROW_TOLERANCE
             if same_line:
                 gap = s.bbox[0] - prev.bbox[2]
                 joiner = " " if gap > 0.8 and not prev.text.endswith(" ") else ""

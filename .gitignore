@@ -71,3 +71,9 @@ apps/api/f.json
 # up somewhere other than this machine. It must never be committed.
 *.jks
 apps/mobile/android/keystores/
+
+# Built APKs. ~58 MB each and rebuilt from source on demand, so committing them
+# would add hundreds of megabytes to every future clone for no recoverable
+# value. The keystore above is the thing that must survive, not the output.
+dist-apk/
+*.apk

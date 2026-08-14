@@ -2,11 +2,13 @@ import React, { useCallback, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
-import { Card, EmptyState, Screen, SectionHeader, SourceBadge, Text } from '@/ui';
+import { Button, Card, EmptyState, Screen, SectionHeader, SourceBadge, Text } from '@/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useT } from '@/i18n/useT';
-import { getMeta, listPapers, type PaperRow } from '@/db/content';
+import { getMeta, listPapers, listTopics, type PaperRow } from '@/db/content';
 import { elapsedMs, findResumable, listAttempts, type AttemptRow } from '@/db/local';
+import { DRILL_SIZE, SECTIONS, isMockId, mockIdFor, newMockSeed } from '@/exam/mockBuilder';
+import { TOPIC_PRIORITY, TOTAL_SITTINGS } from '@/exam/topicPriority';
 
 type Segment = 'papers' | 'mocks';
 
@@ -30,6 +32,8 @@ export default function Practice() {
   const [attempts, setAttempts] = useState<AttemptRow[]>([]);
   const [resumable, setResumable] = useState<Record<string, AttemptRow | null>>({});
   const [meta, setMeta] = useState<Record<string, string>>({});
+  const [topics, setTopics] = useState<Record<string, number>>({});
+  const [showTopics, setShowTopics] = useState(false);
   const [ready, setReady] = useState(false);
 
   // Refresh on focus so a submitted attempt shows immediately on return.
@@ -38,7 +42,12 @@ export default function Practice() {
       let alive = true;
       (async () => {
         try {
-          const [ps, m, as] = await Promise.all([listPapers(), getMeta(), listAttempts()]);
+          const [ps, m, as, ts] = await Promise.all([
+            listPapers(),
+            getMeta(),
+            listAttempts(),
+            listTopics().catch(() => []),
+          ]);
           if (!alive) return;
           // Keep the row, not a boolean: the card shows how much time she has
           // already spent, which is the thing that decides whether she has
@@ -49,6 +58,7 @@ export default function Practice() {
           setPapers(ps);
           setMeta(m);
           setAttempts(as);
+          setTopics(Object.fromEntries(ts.map((t) => [t.topicId, t.questions])));
           setResumable(res);
         } finally {
           if (alive) setReady(true);
@@ -59,6 +69,29 @@ export default function Practice() {
       };
     }, [])
   );
+
+  // Attempts whose paper id carries a mock seed. Newest first, de-duplicated
+  // per mock so re-opening one shows a single row rather than one per sitting.
+  const mockAttempts = Array.from(
+    new Map(
+      [...attempts]
+        .filter((a) => isMockId(a.paper_id))
+        .sort((x, y) => y.started_at - x.started_at)
+        .map((a) => [a.paper_id, a] as const)
+    ).values()
+  );
+
+  const go = (mode: 'full' | 'section' | 'topic' | 'priority' | 'weak', param: string) =>
+    router.push({
+      pathname: '/exam/[paperId]',
+      params: { paperId: mockIdFor(newMockSeed(), mode, param) },
+    });
+
+  // How many questions exist for a section, so an empty one is not offered.
+  const sectionCount = (code: string) => {
+    const subjects = SECTIONS[code]?.subjects ?? [];
+    return papers.length && subjects.length ? 1 : 0;
+  };
 
   const bestFor = (paperId: string) => {
     const mine = attempts.filter((a) => a.paper_id === paperId && a.score != null);
@@ -115,7 +148,108 @@ export default function Practice() {
       </View>
 
       {segment === 'mocks' ? (
-        <EmptyState glyph="◇" title={t('papers.mocks')} body={t('papers.mocksSoon')} />
+        <View style={{ gap: spacing.md, marginBottom: sectionGap }}>
+          <Text variant="caption" tone="secondary">
+            {t('mock.intro')}
+          </Text>
+
+          <Button
+            label={t('mock.start')}
+            size="lg"
+            fullWidth
+            onPress={() => go('full', '-')}
+          />
+
+          {/* Shorter, sharper practice. A full paper is the right rehearsal but
+              the wrong tool on a weeknight, and useless for fixing one topic. */}
+          <SectionHeader title={t('mock.focused')} />
+
+          <Card onPress={() => go('priority', '-')} accessibilityLabel={t('mock.priority')}>
+            <Text variant="bodyStrong">{t('mock.priority')}</Text>
+            <Text variant="caption" tone="secondary">
+              {t('mock.priorityBody', { n: TOTAL_SITTINGS })}
+            </Text>
+          </Card>
+
+          <Card onPress={() => go('weak', '-')} accessibilityLabel={t('mock.weak')}>
+            <Text variant="bodyStrong">{t('mock.weak')}</Text>
+            <Text variant="caption" tone="secondary">
+              {t('mock.weakBody', { n: DRILL_SIZE })}
+            </Text>
+          </Card>
+
+          {Object.keys(SECTIONS).map((code) => {
+            const available = sectionCount(code);
+            if (!available) return null;
+            return (
+              <Card key={code} onPress={() => go('section', code)} accessibilityLabel={t(`mock.section.${code}`)}>
+                <Text variant="bodyStrong">{t(`mock.section.${code}`)}</Text>
+                <Text variant="caption" tone="secondary">
+                  {t('mock.sectionBody', {
+                    n: SECTIONS[code].count,
+                    min: SECTIONS[code].minutes,
+                  })}
+                </Text>
+              </Card>
+            );
+          })}
+
+          <Pressable onPress={() => setShowTopics((v) => !v)} hitSlop={8}>
+            <Text variant="button" color={colors.accent}>
+              {showTopics ? t('mock.hideTopics') : t('mock.byTopic')} {showTopics ? '˄' : '˅'}
+            </Text>
+          </Pressable>
+
+          {/* Ordered by how often the examiners actually set each topic, so the
+              top of this list is where revision time is best spent. */}
+          {showTopics
+            ? TOPIC_PRIORITY.filter((tp) => topics[tp.id]).map((tp) => (
+                <Card key={tp.id} onPress={() => go('topic', tp.id)} accessibilityLabel={tp.name}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flex: 1, gap: 2 }}>
+                      <Text variant="bodyStrong">{tp.name}</Text>
+                      <Text variant="caption" tone="muted">
+                        {tp.strand} · {t('mock.inSittings', { n: tp.sittings, of: TOTAL_SITTINGS })}
+                      </Text>
+                    </View>
+                    <Text variant="caption" tone="muted">
+                      {topics[tp.id]}
+                    </Text>
+                  </View>
+                </Card>
+              ))
+            : null}
+
+          {/* Mocks she has already sat. Attempts key on paper id, and a mock's
+              id carries its seed, so reopening one rebuilds exactly the same
+              paper — nothing about the selection has to be stored. */}
+          {mockAttempts.length > 0 ? (
+            <>
+              <SectionHeader title={t('mock.previous')} />
+              {mockAttempts.map((a) => (
+                <Card
+                  key={a.id}
+                  onPress={() =>
+                    router.push({ pathname: '/exam/[paperId]', params: { paperId: a.paper_id } })
+                  }
+                  accessibilityLabel={`${t('papers.mocks')} ${a.paper_id}`}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flex: 1, gap: 3 }}>
+                      <Text variant="bodyStrong">{t('mock.title')}</Text>
+                      <Text variant="caption" tone="secondary">
+                        {a.submitted_at
+                          ? t('papers.bestScore', { score: a.score ?? 0, max: a.max_score ?? 150 })
+                          : t('papers.resume')}
+                      </Text>
+                    </View>
+                    <SourceBadge kind="mock" label={t('badge.mock')} />
+                  </View>
+                </Card>
+              ))}
+            </>
+          ) : null}
+        </View>
       ) : !ready ? null : papers.length === 0 ? (
         <EmptyState glyph="◇" title={t('papers.empty')} body={t('papers.emptyBody')} />
       ) : (

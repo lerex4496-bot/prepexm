@@ -219,7 +219,7 @@ function deviceLabel(): string {
 // Reading and writing the local database
 // ---------------------------------------------------------------------------
 
-interface LocalSnapshot {
+export interface LocalSnapshot {
   version: number;
   attempts: Record<string, unknown>[];
   responses: Record<string, unknown>[];
@@ -235,7 +235,7 @@ interface LocalSnapshot {
  * for pause/resume after this shape was first imagined, and they round-trip
  * with no change here.
  */
-async function collectLocal(): Promise<LocalSnapshot> {
+export async function collectLocal(): Promise<LocalSnapshot> {
   const db = await openLocalDb();
   const [attempts, responses, mistakes] = await Promise.all([
     db.getAllAsync<Record<string, unknown>>('SELECT * FROM attempts'),
@@ -253,7 +253,7 @@ async function collectLocal(): Promise<LocalSnapshot> {
  * version are dropped rather than causing the insert to fail, so restoring onto
  * an older build degrades instead of breaking.
  */
-async function applyLocal(snap: LocalSnapshot): Promise<void> {
+export async function applyLocal(snap: LocalSnapshot): Promise<void> {
   const db = await openLocalDb();
 
   const columnsOf = async (table: string): Promise<Set<string>> => {

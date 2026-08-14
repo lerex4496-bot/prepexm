@@ -12,6 +12,13 @@ import {
   useAccount,
   type BackupInfo,
 } from '@/account/sync';
+import {
+  BackupError,
+  WouldLoseProgress,
+  readBackup,
+  restoreBackup,
+  saveBackup,
+} from '@/account/backupFile';
 
 /**
  * Optional account, for carrying progress across a reinstall or a new phone.
@@ -110,6 +117,80 @@ export default function AccountScreen() {
     );
   }, [account, backup, local.attempts, run, t]);
 
+  const [fileBusy, setFileBusy] = useState(false);
+
+  /**
+   * Save to a file she keeps. Deliberately available whether or not she has an
+   * account — the whole point is that it needs no server and no sign-up.
+   */
+  const onSave = async () => {
+    if (fileBusy) return;
+    setFileBusy(true);
+    try {
+      const saved = await saveBackup();
+      Alert.alert(
+        t('backup.savedTitle'),
+        t('backup.savedBody', { attempts: saved.attempts, name: saved.name })
+      );
+    } catch (e) {
+      Alert.alert(
+        t('backup.failedTitle'),
+        e instanceof BackupError ? e.message : t('backup.failedBody')
+      );
+    } finally {
+      setFileBusy(false);
+    }
+  };
+
+  const applyRestore = async (env: Awaited<ReturnType<typeof readBackup>>, force: boolean) => {
+    if (!env) return;
+    const done = await restoreBackup(env, force);
+    setLocal(await localCounts());
+    Alert.alert(t('backup.restoredTitle'), t('backup.restoredBody', { attempts: done.attempts }));
+  };
+
+  const onRestore = async () => {
+    if (fileBusy) return;
+    setFileBusy(true);
+    try {
+      const env = await readBackup();
+      if (!env) return;
+      try {
+        await applyRestore(env, false);
+      } catch (e) {
+        // Told exactly what it would cost, then asked. A restore replaces
+        // history rather than merging it, so a stale file can wipe real work —
+        // she should never discover that afterwards.
+        if (e instanceof WouldLoseProgress) {
+          Alert.alert(
+            t('backup.wouldLoseTitle'),
+            t('backup.wouldLoseBody', {
+              phoneAttempts: e.onPhone.attempts,
+              fileAttempts: e.inFile.attempts,
+            }),
+            [
+              { text: t('common.cancel'), style: 'cancel' },
+              {
+                text: t('backup.restoreAnyway'),
+                style: 'destructive',
+                onPress: () => void applyRestore(env, true).catch(() => undefined),
+              },
+            ]
+          );
+          return;
+        }
+        throw e;
+      }
+    } catch (e) {
+      Alert.alert(
+        t('backup.failedTitle'),
+        e instanceof BackupError ? e.message : t('backup.failedBody')
+      );
+    } finally {
+      setFileBusy(false);
+    }
+  };
+
   return (
     <Screen>
       <View
@@ -141,6 +222,9 @@ export default function AccountScreen() {
           <Text variant="caption" tone="secondary">
             {t('account.localCounts', { attempts: local.attempts, mistakes: local.mistakes })}
           </Text>
+          <Text variant="caption" tone="muted" style={{ marginTop: spacing.sm }}>
+            {t('backup.fileHint')}
+          </Text>
           <Text variant="caption" tone="muted" style={{ marginTop: spacing.xs }}>
             {t('account.updateSafe')}
           </Text>
@@ -149,6 +233,15 @@ export default function AccountScreen() {
 
       {!account.token ? (
         <>
+          <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
+            <View style={{ flex: 1 }}>
+              <Button label={t('backup.save')} variant="secondary" fullWidth onPress={() => void onSave()} disabled={fileBusy} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Button label={t('backup.restore')} variant="secondary" fullWidth onPress={() => void onRestore()} disabled={fileBusy} />
+            </View>
+          </View>
+
           <SectionHeader title={t('account.signInTitle')} />
           <View style={{ gap: spacing.sm }}>
             <TextInput

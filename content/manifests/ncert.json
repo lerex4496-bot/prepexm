@@ -1,7 +1,7 @@
 {
   "source": "NCERT official textbook PDFs (ncert.nic.in)",
   "licence_note": "NCERT PDFs are free to download but carry 'All Rights Reserved'. Usable as a private reference corpus for this two-student app. NOT redistributable inside a public product — a public StudyMate would need licensed content or official-source links instead.",
-  "verified": 32,
+  "verified": 38,
   "gaps": 0,
   "books": [
     {
@@ -15,7 +15,7 @@
       "url": "https://ncert.nic.in/textbook/pdf/kebo1ps.pdf",
       "ok": true,
       "bytes": 2951992,
-      "note": ""
+      "note": "URLError"
     },
     {
       "exam": "NEET",
@@ -419,6 +419,84 @@
       "ok": true,
       "bytes": 9964401,
       "note": "Marigold"
+    },
+    {
+      "exam": "CTET",
+      "tier": "CORE",
+      "subject": "Social Science",
+      "klass": 6,
+      "medium": "hi",
+      "part": 1,
+      "code": "fhes1ps",
+      "url": "https://ncert.nic.in/textbook/pdf/fhes1ps.pdf",
+      "ok": true,
+      "bytes": 15192944,
+      "note": "समाज का अध्ययन: भारत और उससे आगे"
+    },
+    {
+      "exam": "CTET",
+      "tier": "CORE",
+      "subject": "Social Science",
+      "klass": 7,
+      "medium": "hi",
+      "part": 1,
+      "code": "ghes1ps",
+      "url": "https://ncert.nic.in/textbook/pdf/ghes1ps.pdf",
+      "ok": true,
+      "bytes": 15591022,
+      "note": "समाज का अध्ययन: भारत और उससे आगे"
+    },
+    {
+      "exam": "CTET",
+      "tier": "CORE",
+      "subject": "Social Science",
+      "klass": 8,
+      "medium": "hi",
+      "part": 1,
+      "code": "hhes1ps",
+      "url": "https://ncert.nic.in/textbook/pdf/hhes1ps.pdf",
+      "ok": true,
+      "bytes": 6252059,
+      "note": "समाज का अध्ययन: भारत और उससे आगे"
+    },
+    {
+      "exam": "CTET",
+      "tier": "CORE",
+      "subject": "Social Science",
+      "klass": 6,
+      "medium": "en",
+      "part": 1,
+      "code": "fees1ps",
+      "url": "https://ncert.nic.in/textbook/pdf/fees1ps.pdf",
+      "ok": true,
+      "bytes": 23733031,
+      "note": "Exploring Society: India and Beyond"
+    },
+    {
+      "exam": "CTET",
+      "tier": "CORE",
+      "subject": "Social Science",
+      "klass": 7,
+      "medium": "en",
+      "part": 1,
+      "code": "gees1ps",
+      "url": "https://ncert.nic.in/textbook/pdf/gees1ps.pdf",
+      "ok": true,
+      "bytes": 16408301,
+      "note": "Exploring Society: India and Beyond"
+    },
+    {
+      "exam": "CTET",
+      "tier": "CORE",
+      "subject": "Social Science",
+      "klass": 8,
+      "medium": "en",
+      "part": 1,
+      "code": "hees1ps",
+      "url": "https://ncert.nic.in/textbook/pdf/hees1ps.pdf",
+      "ok": true,
+      "bytes": 9116051,
+      "note": "Exploring Society: India and Beyond"
     }
   ]
 }

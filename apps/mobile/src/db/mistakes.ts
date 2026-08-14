@@ -191,3 +191,27 @@ export async function loadPerformance(): Promise<PerformancePoint[]> {
     pct: Math.round((r.score / r.max_score) * 100),
   }));
 }
+
+/**
+ * Questions she has actually got wrong, worst first.
+ *
+ * Ordered by how MANY TIMES she has missed each one: a question missed three
+ * times is a genuine gap, whereas one missed once may have been a slip. Drilling
+ * the repeat offenders first is the difference between practice and re-reading.
+ *
+ * Unresolved only — once she has marked a mistake resolved it stops crowding
+ * out the ones she still has.
+ */
+export async function wrongQuestionIds(limit = 200): Promise<string[]> {
+  const db = await openLocalDb();
+  const rows = await db.getAllAsync<{ question_id: string; misses: number }>(
+    `SELECT question_id, COUNT(*) AS misses
+       FROM mistakes
+      WHERE resolved_at IS NULL
+   GROUP BY question_id
+   ORDER BY misses DESC, MAX(created_at) DESC
+      LIMIT ?`,
+    limit
+  );
+  return rows.map((r) => r.question_id);
+}

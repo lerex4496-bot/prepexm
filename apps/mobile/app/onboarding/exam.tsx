@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { Card, StepShell, Text } from '@/ui';
 import { useT } from '@/i18n/useT';
-import { useProfile } from '@/store/profile';
+import { PAPER_TYPES, useProfile, type PaperType } from '@/store/profile';
 import { useTheme } from '@/theme/ThemeProvider';
 import { EXAM_LANGUAGES } from '@/i18n/strings';
 
@@ -22,9 +22,24 @@ export default function ExamStep() {
   const router = useRouter();
   const set = useProfile((s) => s.set);
   const selected = useProfile((s) => s.profile.exam);
+  const paperType = useProfile((s) => s.profile.paperType);
 
+  /**
+   * CTET needs a second answer: Paper 1 and Paper 2 are separate exams, and
+   * Paper 2 splits again by elective. It is disclosed here rather than given
+   * its own step because it is the same question — "what are you sitting?" —
+   * and a step that only appears for one of two exams makes the progress
+   * counter lie about how much is left.
+   */
   const choose = (exam: 'CTET' | 'NEET') => {
     set({ exam, contentLang: EXAM_LANGUAGES[exam][0] });
+    if (exam === 'CTET') return; // stay, and reveal the paper choice below
+    set({ paperType: null }); // NEET has no such split
+    router.push('/onboarding/language');
+  };
+
+  const choosePaper = (paperType: PaperType) => {
+    set({ paperType });
     router.push('/onboarding/language');
   };
 
@@ -63,6 +78,34 @@ export default function ExamStep() {
           );
         })}
       </View>
+
+      {selected === 'CTET' ? (
+        <View style={{ marginTop: spacing.xl, gap: spacing.md }}>
+          <Text variant="h3">{t('paper.title')}</Text>
+          <Text variant="caption" tone="secondary">
+            {t('paper.body')}
+          </Text>
+          {PAPER_TYPES.map((p) => {
+            const active = paperType === p;
+            return (
+              <Card
+                key={p}
+                onPress={() => choosePaper(p)}
+                accessibilityLabel={`${t(`paper.${p}`)}. ${t(`paper.${p}.desc`)}`}
+                style={{
+                  borderColor: active ? colors.accent : colors.hairline,
+                  borderWidth: active ? 2 : 1,
+                }}
+              >
+                <Text variant="bodyStrong">{t(`paper.${p}`)}</Text>
+                <Text variant="caption" tone="secondary">
+                  {t(`paper.${p}.desc`)}
+                </Text>
+              </Card>
+            );
+          })}
+        </View>
+      ) : null}
     </StepShell>
   );
 }

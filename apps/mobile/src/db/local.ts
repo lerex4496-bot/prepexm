@@ -14,6 +14,8 @@
 
 import * as SQLite from 'expo-sqlite';
 
+import { ensureSQLiteDir } from './content';
+
 const DB_NAME = 'studymate-local.db';
 
 let db: SQLite.SQLiteDatabase | null = null;
@@ -105,6 +107,11 @@ async function migrate(d: SQLite.SQLiteDatabase): Promise<void> {
 
 export async function openLocalDb(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
+  // Both databases share files/SQLite, and that path was found existing as a
+  // FILE on a real device — which made every open here fail permanently with
+  // "Path already points to a non-normal file". Whichever database opens first
+  // has to repair the folder, so this runs on both paths.
+  await ensureSQLiteDir();
   db = await SQLite.openDatabaseAsync(DB_NAME);
   await db.execAsync(SCHEMA);
   await migrate(db);

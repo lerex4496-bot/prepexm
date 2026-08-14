@@ -11,6 +11,7 @@ already been reviewed keeps its decision, note and audit trail.
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -44,8 +45,72 @@ def confidence_for(q: dict) -> float:
     return max(0.0, round(score, 3))
 
 
-def ingest_file(path: Path, db) -> tuple[str, int, int]:
+class StructurallyUnsound(Exception):
+    """The parsed paper cannot be imported as it stands."""
+
+
+def assert_sound(path: Path, data: dict) -> None:
+    """
+    Refuse a paper whose question numbering is broken.
+
+    Question ids are built as `<paper>-q<number>`, so two questions sharing a
+    number share an id. Postgres rejects the second, which aborts the whole
+    import — one malformed paper stopped every later paper from loading.
+
+    But crashing was the SAFE failure. The dangerous version is the one where
+    an upsert quietly overwrites the first question with the second, leaving a
+    paper that looks complete and is missing content nobody can see is gone.
+
+    A duplicate number always means the parse went wrong upstream — in the 2024
+    Paper II booklets, passage prose is being captured as extra questions — so
+    the paper is rejected here, loudly, rather than repaired by guesswork.
+    """
+    numbers = [q.get("number") for q in data.get("questions") or []]
+    seen, dupes = set(), []
+    for n in numbers:
+        if n in seen:
+            dupes.append(n)
+        seen.add(n)
+    if dupes:
+        shown = ", ".join(str(d) for d in sorted(set(dupes))[:10])
+        raise StructurallyUnsound(
+            f"{len(dupes)} duplicate question numbers ({shown}) — parse is wrong, not importable"
+        )
+
+
+def drop_unusable(data: dict) -> list[int]:
+    """
+    Remove individual questions that cannot be stored, and say which.
+
+    A question whose options repeat a label — two options both labelled "A" —
+    violates the (question, label) uniqueness the schema enforces, and would
+    abort the entire import. It comes from option text being split across
+    columns and re-lettered, and it affects 44 questions across the corpus,
+    almost all in Mathematics.
+
+    Rejecting the whole PAPER for this would be the wrong trade: it throws away
+    148 sound questions to avoid two broken ones. Duplicate question NUMBERS
+    stay a paper-level rejection (see assert_sound) because that means the
+    parse lost its place entirely; a duplicate option label is local damage.
+
+    Nothing is repaired here — a question with ambiguous options is dropped,
+    never guessed at.
+    """
+    kept, dropped = [], []
+    for q in data.get("questions") or []:
+        labels = [o.get("label") for o in q.get("options") or []]
+        if len(labels) != len(set(labels)):
+            dropped.append(q.get("number"))
+        else:
+            kept.append(q)
+    data["questions"] = kept
+    return dropped
+
+
+def ingest_file(path: Path, db) -> tuple[str, int, int, list, list]:
     data = json.loads(path.read_text(encoding="utf-8"))
+    assert_sound(path, data)
+    dropped = drop_unusable(data)
     p = data["paper"]
     paper_id = p["id"]
 
@@ -183,23 +248,89 @@ def ingest_file(path: Path, db) -> tuple[str, int, int]:
         )
 
     db.commit()
-    return paper_id, len(data["questions"]), kept, invalidated
+    return paper_id, len(data["questions"]), kept, invalidated, dropped
+
+
+def one_set_per_sitting(files: list[Path]) -> list[Path]:
+    """
+    Keep one file per (paper type, exam date).
+
+    CBSE prints four sets of each paper — the same questions in a different
+    order so neighbours cannot copy. Set O and set P of 01 March are the SAME
+    150 questions, so importing every set would multiply the bank without
+    adding a single new question, and would serve her the same question four
+    times in one practice session.
+
+    Where a sitting was parsed more than once, the file with the most questions
+    carrying an official answer wins.
+    """
+    groups: dict[tuple[str, str], list[tuple[int, Path]]] = {}
+    for f in files:
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            continue
+        paper = data.get("paper") or {}
+        key = (paper.get("paperType"), paper.get("heldOn"))
+        if not all(key):
+            continue
+        keyed = sum(
+            1
+            for q in data.get("questions") or []
+            if any(o.get("isCorrect") for o in q.get("options") or [])
+        )
+        groups.setdefault(key, []).append((keyed, f))
+
+    chosen = []
+    for key in sorted(groups, key=lambda k: (k[0] or "", k[1] or "")):
+        members = sorted(groups[key], key=lambda m: (-m[0], m[1].name))
+        chosen.append(members[0][1])
+        for _keyed, dropped in members[1:]:
+            print(f"  skipping {dropped.name} — same sitting as {members[0][1].name}")
+    return chosen
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser(description="Import parsed papers as review_status=pending.")
+    ap.add_argument(
+        "--glob",
+        default="ctet_ctet_p*.json",
+        help="which parsed files to import (default: the original naming only)",
+    )
+    ap.add_argument(
+        "--all-sets",
+        action="store_true",
+        help="import every set of a sitting; by default only one is kept, "
+             "because the sets are the same questions reshuffled",
+    )
+    args = ap.parse_args()
+
     Base.metadata.create_all(engine)
     root = Path(__file__).resolve().parents[3]
-    files = sorted((root / "content" / "parsed").glob("ctet_ctet_p*.json"))
+    files = sorted((root / "content" / "parsed").glob(args.glob))
     if not files:
-        print("no assembled papers found — run tools/ctet_corpus.py first")
+        print(f"no parsed papers matched {args.glob!r}")
         return 1
+    if not args.all_sets:
+        files = one_set_per_sitting(files)
 
     with SessionLocal() as db:
         total = 0
         total_invalid = 0
+        rejected: list[tuple[str, str]] = []
         for f in files:
-            pid, n, kept, invalid = ingest_file(f, db)
+            # One unsound paper must not stop the rest loading. The session is
+            # rolled back so a partial write from the failed paper cannot leak
+            # into the next one's transaction.
+            try:
+                pid, n, kept, invalid, dropped = ingest_file(f, db)
+            except StructurallyUnsound as e:
+                db.rollback()
+                rejected.append((f.name, str(e)))
+                continue
             note = f" ({kept} prior reviews preserved)" if kept else ""
+            if dropped:
+                note += f"  [dropped {len(dropped)}: duplicate option labels on Q{', Q'.join(str(d) for d in dropped)}]"
             print(f"  {f.name:44} -> paper {pid}  {n} questions{note}")
             if invalid:
                 total_invalid += len(invalid)
@@ -209,7 +340,12 @@ def main() -> int:
                 if len(invalid) > 6:
                     print(f"         ... and {len(invalid) - 6} more")
             total += n
-        print(f"\ningested {total} questions from {len(files)} papers, all review_status=pending")
+        ok = len(files) - len(rejected)
+        print(f"\ningested {total} questions from {ok} papers, all review_status=pending")
+        if rejected:
+            print(f"\n{len(rejected)} papers REJECTED — not imported:")
+            for name, why in rejected:
+                print(f"  {name}\n      {why}")
     return 0
 
 

@@ -1,0 +1,549 @@
+{
+  "judge": [
+    {
+      "paper": "july-2024_paper2_setK_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "15cbde5848f9-q043",
+      "number": 43,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "contains replacement or private-use characters",
+        "parser warning: glyph not verifiable: TT3444O00 code 0x38 has no verified meaning (p40)"
+      ],
+      "stem": "The opening time of Central Government Offices in India is 9:00 a.m. IST, what will be the local time of opening of the Central Government Offices located at 80� East Longitude near Chennai and 92�45' East Longitude near Itanagar, respectively :",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "08:50 a.m. and 09:41 a.m. respectively",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "en": "09:41 a.m. and 08:50 a.m. respectively",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "09:10 a.m. and 08:19 a.m. respectively",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "08:19 a.m. and 09:10 a.m. respectively",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "1"
+    },
+    {
+      "paper": "feb-2026_p2_07Feb_Set-W_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "c299bbe46925-q006",
+      "number": 6,
+      "subject": "Child Development and Pedagogy",
+      "verdict": "JUDGE",
+      "reasons": [
+        "same stem as july-2024_paper2_setK_socsci"
+      ],
+      "stem": "Which of the following is a correctly matched pair?",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "Punishment and Obedience orientation—Avoidance of bad consequences",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "en": "Good boy-Good girl orientation—Greatest good for greater numbers",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "Law and Order orientation—Upholding principles of social justice for humanity",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "Social Contract orientation—Consideration of perception of others",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "1"
+    },
+    {
+      "paper": "feb-2026_p2_07Feb_Set-W_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "c299bbe46925-q115",
+      "number": 115,
+      "subject": "Language I",
+      "verdict": "JUDGE",
+      "reasons": [
+        "same stem as dec-2024_paper2_15Dec_set_L_socsci"
+      ],
+      "stem": "Which approach to language teaching-learning believes ‘language is a habit’?",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "Audiolingualism",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "en": "Communicative language teaching",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "Natural approach",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "Cooperative language learning",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "1"
+    },
+    {
+      "paper": "feb-2026_p2_08Feb_Set-G_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "fd8463c56926-q032",
+      "number": 32,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "parser warning: hindi block present but not split into 4 options"
+      ],
+      "stem": "How much longitudinal extent does one Time Zone of Earth of one Hour each cover ?",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "15°",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "en": "60°",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "45°",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "30°",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "1"
+    },
+    {
+      "paper": "feb-2026_p2_08Feb_Set-G_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "fd8463c56926-q034",
+      "number": 34,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "parser warning: hindi block present but not split into 4 options"
+      ],
+      "stem": "Water scarcity is caused by the following given factors : (a) Water Harvesting (b) Variation in Rainfall (c) Contamination of water (d) Over exploitation Choices /",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "(a), (b), (c)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "en": "(a), (c), (d)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "(b), (c), (d)",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "D",
+          "en": "(a), (b), (d)",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "3"
+    },
+    {
+      "paper": "feb-2026_p2_08Feb_Set-G_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "fd8463c56926-q037",
+      "number": 37,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "parser warning: hindi block present but not split into 4 options"
+      ],
+      "stem": "In which year did James Mill publish his three volumes book titled “A History of British India” ?",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "1817",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "en": "1818",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "1815",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "1816",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "1"
+    },
+    {
+      "paper": "feb-2026_p2_08Feb_Set-G_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "fd8463c56926-q041",
+      "number": 41,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "parser warning: hindi block present but not split into 4 options"
+      ],
+      "stem": "‘The farmer in USA works like a businessman’. Justify the statement. Choose the correct reasons : (a) Use of Tractors, harvesters (b) Farm size is small (c) Automated Grain storage (d) Use of chemical fertilizers Choices /",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "(a), (b), (d)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "en": "(a), (c), (d)",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "en": "(a), (b), (c)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "(b), (c), (d)",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "2"
+    },
+    {
+      "paper": "feb-2026_p2_08Feb_Set-G_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "fd8463c56926-q048",
+      "number": 48,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "parser warning: hindi block present but not split into 4 options"
+      ],
+      "stem": "The first cotton mill in India was set up as a spinning mill in Bombay in the year :",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "1854",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "en": "1855",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "1852",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "1853",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "1"
+    },
+    {
+      "paper": "feb-2026_p2_08Feb_Set-G_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "fd8463c56926-q062",
+      "number": 62,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "parser warning: hindi block present but not split into 4 options"
+      ],
+      "stem": "Which of the following will help in developing better teaching learning environment in Social Science classrooms ? (a) Development of reference libraries. (b) Creation of flexible school timings. (c) Accessibility to disseminative technologies only. (d) Development of study material in regional languages.",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "(a), (c), (d)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "en": "(a), (b), (d)",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "en": "(a), (b), (c)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "(b), (c), (d)",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "2"
+    },
+    {
+      "paper": "feb-2026_p2_08Feb_Set-G_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "fd8463c56926-q075",
+      "number": 75,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "parser warning: hindi block present but not split into 4 options"
+      ],
+      "stem": "Which of the following methods may be used for improving the national standards of Social Science education to meet the challenges of global competition ? (a) Identifying learning outcomes. (b) Developing innovative and improved evaluation tools. (c) Designing centralized, standardized and singular courses. (d) Developing audio-visual and multimedia based interactive study material.",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "(a), (c), (d)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "en": "(a), (b), (d)",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "en": "(a), (b), (c)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "(b), (c), (d)",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "2"
+    },
+    {
+      "paper": "feb-2026_p2_08Feb_Set-G_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "fd8463c56926-q076",
+      "number": 76,
+      "subject": "Social Studies / Social Science",
+      "verdict": "JUDGE",
+      "reasons": [
+        "parser warning: hindi block present but not split into 4 options"
+      ],
+      "stem": "As a teacher of Social Science, which of the following will you be careful about while discussing issues like gender discrimination and caste discrimination ? (a) Encouraging speaking up in the class. (b) Making students learn to listen to the others. (c) Non-acceptance of conflicts in the classroom. (d) Developing an atmosphere of trust in the classroom.",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "(a), (c), (d)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "en": "(a), (b), (d)",
+          "hi": "",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "en": "(a), (b), (c)",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "en": "(b), (c), (d)",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "2"
+    }
+  ],
+  "block": [
+    {
+      "paper": "july-2024_paper2_setK_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "15cbde5848f9-q148",
+      "number": 148,
+      "subject": "Language II",
+      "verdict": "BLOCK",
+      "reasons": [
+        "1 options, expected 4"
+      ],
+      "stem": "When is International Mother Language Day celebrated ?",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "21 st February (2) 13 th April (3) 1 st January (4) 14 th February",
+          "hi": "",
+          "isCorrect": true
+        }
+      ],
+      "keyRaw": "1"
+    },
+    {
+      "paper": "dec-2024_paper2_14Dec_set_D_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "1f0571fac11c-q048",
+      "number": 48,
+      "subject": "Social Studies / Social Science",
+      "verdict": "BLOCK",
+      "reasons": [
+        "duplicate option text"
+      ],
+      "stem": "World Environment Day is celebrated every year on which one of the following days ?",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "5 th August (2) 5 th May (3) 5 th June (4) 5 th July",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "A",
+          "en": "5",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "en": "5",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "5",
+          "hi": "",
+          "isCorrect": true
+        }
+      ],
+      "keyRaw": "3"
+    },
+    {
+      "paper": "dec-2024_paper2_14Dec_set_D_socsci",
+      "paperType": "CTET_P2_SOCSCI",
+      "questionId": "1f0571fac11c-q093",
+      "number": 93,
+      "subject": "Language I",
+      "verdict": "BLOCK",
+      "reasons": [
+        "no official answer key joined"
+      ],
+      "stem": "As mentioned by the writer in para 2, some ways by which you can break the monotony of the room is :",
+      "stemHi": "",
+      "options": [
+        {
+          "label": "A",
+          "en": "by blending light and dark shades",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "en": "painting all the 4 walls in plain colours",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "en": "both",
+          "hi": "",
+          "isCorrect": false
+        },
+        {
+          "label": "A",
+          "en": "and (2)",
+          "hi": "",
+          "isCorrect": false
+        }
+      ],
+      "keyRaw": "4"
+    }
+  ]
+}

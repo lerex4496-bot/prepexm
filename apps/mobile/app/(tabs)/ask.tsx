@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -16,6 +16,10 @@ import { TutorUnavailable, type Citation } from '@/tutor/client';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 
+import { ensureMediaPermission, openAppSettings } from '@/media/permission';
+
+import { useChat } from '@/tutor/chatStore';
+import { SessionsSheet } from '@/tutor/SessionsSheet';
 import {
   CHAT_STARTERS,
   askPhoto,
@@ -51,7 +55,21 @@ export default function AskScreen() {
   const { colors, spacing, radius } = useTheme();
   const { t } = useT();
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // Persisted, not local state. See src/tutor/chatStore.ts: the transcript
+  // used to die on every tab switch, and opening the camera backgrounds the
+  // app, which could take the whole conversation with it.
+  const messages = useChat((s) => s.messages);
+  const setMessages = useChat((s) => s.set);
+  const hydrated = useChat((s) => s.hydrated);
+  const hydrateChat = useChat((s) => s.hydrate);
+  const newSession = useChat((s) => s.newSession);
+  const sessionCount = useChat((s) => s.sessions.length);
+
+  const [sessionsOpen, setSessionsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!hydrated) void hydrateChat();
+  }, [hydrated, hydrateChat]);
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   const scroller = useRef<ScrollView>(null);
@@ -135,19 +153,9 @@ export default function AskScreen() {
    * wrong often enough that an answer to a subtly different question is a real
    * outcome — and one she can only catch if she can see the transcript.
    */
-  const takePhoto = useCallback(
-    async (fromCamera: boolean) => {
-      if (busy) return;
-      const perm = fromCamera
-        ? await ImagePicker.requestCameraPermissionsAsync()
-        : await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) return;
-
-      const res = fromCamera
-        ? await ImagePicker.launchCameraAsync({ quality: 0.7 })
-        : await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
-      if (res.canceled || !res.assets?.[0]?.uri) return;
-
+  /** Upload one image and render the answer. Shared by the picker and by recovery. */
+  const sendPhoto = useCallback(
+    async (uri: string) => {
       const placeholder: ChatMessage = {
         id: `a${Date.now()}`,
         role: 'assistant',
@@ -161,7 +169,7 @@ export default function AskScreen() {
       ]);
       setBusy(true);
       try {
-        const r = await askPhoto(res.assets[0].uri);
+        const r = await askPhoto(uri);
         setMessages((prev) =>
           prev.flatMap((m) =>
             m.id !== placeholder.id
@@ -190,10 +198,95 @@ export default function AskScreen() {
         requestAnimationFrame(() => scroller.current?.scrollToEnd({ animated: true }));
       }
     },
-    [busy, t]
+    [t, setMessages]
   );
 
-  /** Add a PDF of her own notes to the searchable corpus. */
+  /**
+   * Recover a photo taken while this screen was destroyed.
+   *
+   * Opening the camera puts StudyMate in the background, and on a 4 GB phone
+   * with the camera running Android frequently kills it outright — 140 MB free
+   * was measured on hers. When she returns, the process has restarted, the
+   * router is back at its initial route, and the photo is gone. From her side
+   * the camera button "sends me to Today".
+   *
+   * Android hands the result to the recreated activity rather than dropping
+   * it, and expo-image-picker exposes it here — its own docs call out handling
+   * MainActivity destruction. So on mount we ask whether a picture is waiting
+   * and finish the job she started.
+   *
+   * Only meaningful on Android; it resolves null everywhere else.
+   */
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      try {
+        const pending = await ImagePicker.getPendingResultAsync();
+        const asset = Array.isArray(pending)
+          ? pending[0]
+          : (pending as ImagePicker.ImagePickerResult | null);
+        const uri =
+          asset && 'assets' in asset && !asset.canceled ? asset.assets?.[0]?.uri : undefined;
+        if (alive && uri) await sendPhoto(uri);
+      } catch {
+        // A pending result that cannot be read is not worth surfacing — she
+        // can simply take the photo again. Crashing the tab on entry is not.
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [sendPhoto]);
+
+  const takePhoto = useCallback(
+    async (fromCamera: boolean) => {
+      if (busy) return;
+
+      // Explain, then ask. See src/media/permission.ts — Android grants exactly
+      // one chance at its own dialog, and the previous `if (!perm.granted)
+      // return;` turned a refusal into a button that silently did nothing.
+      const perm = await ensureMediaPermission(fromCamera ? 'camera' : 'library', {
+        title: t(fromCamera ? 'perm.cameraTitle' : 'perm.libraryTitle'),
+        body: t(fromCamera ? 'perm.cameraBody' : 'perm.libraryBody'),
+        allow: t('perm.allow'),
+        notNow: t('perm.notNow'),
+      });
+      if (!perm.ok) {
+        // "Not now" was her decision and needs no reply. A block does: it is
+        // the state she cannot get out of from in here, so the message carries
+        // the settings route with it.
+        if (perm.reason === 'blocked') {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `p${Date.now()}`,
+              role: 'assistant',
+              content: t(fromCamera ? 'perm.cameraDenied' : 'perm.libraryDenied'),
+              action: 'settings',
+            },
+          ]);
+          requestAnimationFrame(() => scroller.current?.scrollToEnd({ animated: true }));
+        }
+        return;
+      }
+
+      const res = fromCamera
+        ? await ImagePicker.launchCameraAsync({ quality: 0.7 })
+        : await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
+      if (res.canceled || !res.assets?.[0]?.uri) return;
+      await sendPhoto(res.assets[0].uri);
+    },
+    [busy, t, sendPhoto]
+  );
+
+  /**
+   * Add a PDF of her own notes to the searchable corpus.
+   *
+   * No permission gate here, deliberately: DocumentPicker goes through
+   * Android's Storage Access Framework, where the picker itself IS the grant.
+   * Requesting a runtime permission for it would prompt for something the app
+   * does not need.
+   */
   const attachDoc = useCallback(async () => {
     if (busy) return;
     const res = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', copyToCacheDirectory: true });
@@ -236,9 +329,39 @@ export default function AskScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Text variant="display" style={{ marginTop: spacing.lg }}>
-          {t('tab.ask')}
-        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: spacing.lg,
+          }}
+        >
+          <Text variant="display">{t('tab.ask')}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+            {/* Only offered once there is something to go back to. A list
+                button on a first-run screen opens an empty sheet. */}
+            {sessionCount > 0 ? (
+              <Pressable
+                onPress={() => setSessionsOpen(true)}
+                hitSlop={10}
+                accessibilityLabel={t('chat.sessions')}
+              >
+                <Text variant="h3" tone="muted">
+                  ☰
+                </Text>
+              </Pressable>
+            ) : null}
+            {/* Nothing to start when the current chat is already empty. */}
+            {messages.length > 0 ? (
+              <Pressable onPress={newSession} hitSlop={10} accessibilityLabel={t('chat.new')}>
+                <Text variant="h3" tone="muted">
+                  ＋
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+        </View>
         <Text variant="caption" tone="muted" style={{ marginBottom: spacing.md }}>
           {t('ask.grounding')}
         </Text>
@@ -358,6 +481,8 @@ export default function AskScreen() {
           </Pressable>
         </View>
       </KeyboardAvoidingView>
+
+      <SessionsSheet visible={sessionsOpen} onClose={() => setSessionsOpen(false)} />
     </Screen>
   );
 }
@@ -407,6 +532,21 @@ function Bubble({ message }: { message: ChatMessage }) {
           <Text variant="body">{message.content}</Text>
         )}
       </View>
+
+      {/* A blocked permission cannot be undone from inside the app, so the
+          message that reports it carries the only route that still works. */}
+      {message.action === 'settings' ? (
+        <Pressable
+          onPress={() => void openAppSettings()}
+          accessibilityRole="button"
+          hitSlop={8}
+          style={{ marginTop: 6 }}
+        >
+          <Text variant="caption" color={colors.accent}>
+            {t('perm.openSettings')} ›
+          </Text>
+        </Pressable>
+      ) : null}
 
       {/* Said plainly, under the answer itself. The citations are what make a
           tutor answer checkable; without them she is reading the model's own

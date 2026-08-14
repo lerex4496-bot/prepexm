@@ -48,18 +48,34 @@ export default function Today() {
   const languages = EXAM_LANGUAGES[exam];
 
   const [data, setData] = useState<TodayData | null>(null);
+  // A failure here used to be invisible. The loader had no catch, so if
+  // buildToday threw — a corrupt content copy, a missing table — `data` stayed
+  // null forever and everything below the greeting rendered as nothing. On a
+  // real phone that looked like a finished, empty app rather than a broken one,
+  // and there was no way for her to tell the difference or act on it.
+  const [error, setError] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       let alive = true;
       void (async () => {
-        const d = await buildToday(profile.dailyMinutes);
-        if (alive) setData(d);
+        try {
+          const d = await buildToday(profile.dailyMinutes);
+          if (alive) {
+            setData(d);
+            setError(null);
+          }
+        } catch (e) {
+          if (alive) {
+            setError(e instanceof Error ? e.message : t('today.loadFailed'));
+            setData(null);
+          }
+        }
       })();
       return () => {
         alive = false;
       };
-    }, [profile.dailyMinutes])
+    }, [profile.dailyMinutes, t])
   );
 
   const greeting = (() => {
@@ -148,11 +164,23 @@ export default function Today() {
 
       <Text variant="display">{greeting}</Text>
 
-      {!data ? null : !data.hasContent ? (
+      {/* Three distinct states, because they mean different things to her:
+          an error she can act on, a still-loading screen, and a genuinely
+          empty plan. Collapsing them into one blank view is what made a
+          broken install look like a finished app. */}
+      {error ? (
+        <EmptyState glyph="⚠" title={t('today.loadFailed')} body={error} />
+      ) : !data ? (
+        <EmptyState glyph="◌" title={t('today.loading')} body="" />
+      ) : !data.hasContent ? (
+        // Exam-aware, because "no papers" means two different things. For CTET
+        // it means the review queue has not been worked through; for NEET it
+        // means the content pipeline has not been built yet. Showing the same
+        // sentence for both reads as a bug to the NEET student.
         <EmptyState
           glyph="◇"
-          title={t('papers.empty')}
-          body={t('papers.emptyBody')}
+          title={exam === 'NEET' ? t('papers.neetSoon') : t('papers.empty')}
+          body={exam === 'NEET' ? t('papers.neetSoonBody') : t('papers.emptyBody')}
         />
       ) : (
         <>

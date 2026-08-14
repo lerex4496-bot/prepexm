@@ -7,10 +7,34 @@ export type Lang = 'en' | 'hi' | 'gu';
 export type PrepLevel = 'starting' | 'revising' | 'nearly';
 export type ThemePref = 'system' | 'light' | 'dark';
 
+/**
+ * Which CTET paper she is actually sitting.
+ *
+ * CTET is two separate exams under one name. Paper 1 qualifies for Classes I–V,
+ * Paper 2 for Classes VI–VIII, and Paper 2 splits again by elective: Mathematics
+ * and Science, or Social Studies. A candidate sits ONE of these.
+ *
+ * Matches `papers.paper_type` in the content bundle exactly, so it can be used
+ * as a query filter without translation.
+ */
+export type PaperType = 'CTET_P1' | 'CTET_P2_MATHSCI' | 'CTET_P2_SOCSCI';
+
+/** Listed in the order they appear on the CBSE notification. */
+export const PAPER_TYPES: PaperType[] = ['CTET_P1', 'CTET_P2_MATHSCI', 'CTET_P2_SOCSCI'];
+
 export interface Profile {
   onboarded: boolean;
   name: string | null;
   exam: ExamCode | null;
+  /**
+   * Null means "show everything", which is the right default for a profile
+   * created before this field existed and for NEET, where no such split exists.
+   *
+   * Without it a Social Studies candidate was shown Paper 1 and the Maths and
+   * Science paper alongside her own — two thirds of the practice list being
+   * questions she will never be asked, and a daily plan built from them.
+   */
+  paperType: PaperType | null;
   /**
    * The language of EXAM CONTENT — question stems, options, explanations.
    *
@@ -41,6 +65,7 @@ const EMPTY: Profile = {
   onboarded: false,
   name: null,
   exam: null,
+  paperType: null,
   contentLang: 'en',
   target: null,
   level: null,

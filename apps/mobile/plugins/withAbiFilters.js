@@ -31,7 +31,22 @@ const { withGradleProperties } = require('expo/config-plugins');
  * would silently fail to install on an older 32-bit handset, and we do not know
  * what hardware these two students use. Correctness over the last megabyte.
  */
-const ARCHITECTURES = 'armeabi-v7a,arm64-v8a';
+/**
+ * The emulator is x86_64 and no physical phone is, so a release APK built for
+ * phones CANNOT run on it — it dies at startup with
+ *
+ *     couldn't find DSO to load: libreactnative.so
+ *
+ * before a line of our JavaScript executes. That makes the emulator useless for
+ * verifying a device bug unless x86_64 is built in deliberately.
+ *
+ * Set STUDYMATE_EMULATOR_ABI=1 to include it for a test build. It is an opt-in
+ * environment flag rather than a permanent entry because those 23 MB are dead
+ * weight in anything the students install.
+ */
+const ARCHITECTURES = process.env.STUDYMATE_EMULATOR_ABI
+  ? 'armeabi-v7a,arm64-v8a,x86_64'
+  : 'armeabi-v7a,arm64-v8a';
 
 module.exports = function withAbiFilters(config) {
   return withGradleProperties(config, (cfg) => {

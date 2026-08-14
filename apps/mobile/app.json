@@ -91,7 +91,8 @@
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/7532f12f-a91d-4329-b0d5-6cdec48bbc28"
+      "enabled": false,
+      "_comment": "OTA is DISABLED deliberately. expo-asset hands embedded-asset resolution to expo-updates whenever it is enabled (see expo-asset/build/PlatformUtils.js: shouldUseUpdatesAssetResolution). expo-updates could not find the bundled studymate.db in its store, returned null, and Asset fell back to a remote URL that is empty - so downloadAsync rejected with 'Unable to download asset from url:' and EVERY content screen was empty. There is no OTA server serving this app; every launch logged 'Failed to download remote update'. Builds are installed over USB, so this layer bought nothing and cost the entire question bank."
     }
   }
 }

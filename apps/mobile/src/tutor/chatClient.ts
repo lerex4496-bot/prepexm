@@ -41,6 +41,14 @@ export interface ChatMessage {
   ungrounded?: boolean;
   pending?: boolean;
   failed?: boolean;
+  /**
+   * An action the message offers, rendered as a link beneath it.
+   *
+   * Only 'settings' so far: a blocked camera permission cannot be fixed from
+   * inside the app, so the message that reports it has to carry the one route
+   * that still works.
+   */
+  action?: 'settings';
 }
 
 export interface ChatResponse {

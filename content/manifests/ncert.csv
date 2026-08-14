@@ -1,5 +1,5 @@
 exam,tier,subject,klass,medium,part,code,url,ok,bytes,note
-NEET,CORE,Biology,11,en,1,kebo1ps,https://ncert.nic.in/textbook/pdf/kebo1ps.pdf,True,2951992,
+NEET,CORE,Biology,11,en,1,kebo1ps,https://ncert.nic.in/textbook/pdf/kebo1ps.pdf,True,2951992,URLError
 NEET,CORE,Biology,12,en,1,lebo1ps,https://ncert.nic.in/textbook/pdf/lebo1ps.pdf,True,573875,
 NEET,CORE,Physics,11,en,1,keph1ps,https://ncert.nic.in/textbook/pdf/keph1ps.pdf,True,1890608,
 NEET,CORE,Physics,11,en,2,keph2ps,https://ncert.nic.in/textbook/pdf/keph2ps.pdf,True,1443978,
@@ -31,3 +31,9 @@ CTET,CORE,English,1,en,1,aemr1ps,https://ncert.nic.in/textbook/pdf/aemr1ps.pdf,T
 CTET,CORE,English,2,en,1,bemr1ps,https://ncert.nic.in/textbook/pdf/bemr1ps.pdf,True,2812044,Mridang
 CTET,CORE,English,3,en,1,cesa1ps,https://ncert.nic.in/textbook/pdf/cesa1ps.pdf,True,1956951,Santoor
 CTET,CORE,English,5,en,1,eeen1ps,https://ncert.nic.in/textbook/pdf/eeen1ps.pdf,True,9964401,Marigold
+CTET,CORE,Social Science,6,hi,1,fhes1ps,https://ncert.nic.in/textbook/pdf/fhes1ps.pdf,True,15192944,समाज का अध्ययन: भारत और उससे आगे
+CTET,CORE,Social Science,7,hi,1,ghes1ps,https://ncert.nic.in/textbook/pdf/ghes1ps.pdf,True,15591022,समाज का अध्ययन: भारत और उससे आगे
+CTET,CORE,Social Science,8,hi,1,hhes1ps,https://ncert.nic.in/textbook/pdf/hhes1ps.pdf,True,6252059,समाज का अध्ययन: भारत और उससे आगे
+CTET,CORE,Social Science,6,en,1,fees1ps,https://ncert.nic.in/textbook/pdf/fees1ps.pdf,True,23733031,Exploring Society: India and Beyond
+CTET,CORE,Social Science,7,en,1,gees1ps,https://ncert.nic.in/textbook/pdf/gees1ps.pdf,True,16408301,Exploring Society: India and Beyond
+CTET,CORE,Social Science,8,en,1,hees1ps,https://ncert.nic.in/textbook/pdf/hees1ps.pdf,True,9116051,Exploring Society: India and Beyond

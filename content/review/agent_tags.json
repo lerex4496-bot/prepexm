@@ -1,0 +1,1292 @@
+[
+  {
+    "questionId": "1f0571fac11c-q034",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "non-Brahman movement and its social base"
+  },
+  {
+    "questionId": "1f0571fac11c-q035",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "Satnami movement / leather workers, anti-caste reformer"
+  },
+  {
+    "questionId": "1f0571fac11c-q036",
+    "topicId": "geo_air",
+    "confidence": "high",
+    "why": "classifies land and sea breeze as a type of wind"
+  },
+  {
+    "questionId": "1f0571fac11c-q042",
+    "topicId": "geo_environment",
+    "confidence": "medium",
+    "why": "grassland vegetation belts and their climate; natural environment"
+  },
+  {
+    "questionId": "1f0571fac11c-q054",
+    "topicId": "spl_social_justice",
+    "confidence": "high",
+    "why": "constitutional reservation as redress for historical suppression"
+  },
+  {
+    "questionId": "1f0571fac11c-q055",
+    "topicId": "hist_regional_cultures",
+    "confidence": "medium",
+    "why": "new art forms in colonial India adapted by Indian artists"
+  },
+  {
+    "questionId": "1f0571fac11c-q056",
+    "topicId": "hist_first_farmers",
+    "confidence": "high",
+    "why": "what distinguishes Neolithic sites from Palaeolithic ones"
+  },
+  {
+    "questionId": "1f0571fac11c-q057",
+    "topicId": null,
+    "confidence": "none",
+    "why": "decline of village iron smelting under colonial rule; the crafts-and-industry chapter has no topic in the bulletin list"
+  },
+  {
+    "questionId": "1f0571fac11c-q062",
+    "topicId": "ped_critical_thinking",
+    "confidence": "high",
+    "why": "asks which question types promote critical thinking"
+  },
+  {
+    "questionId": "1f0571fac11c-q063",
+    "topicId": "spl_making_a_living",
+    "confidence": "high",
+    "why": "why agricultural labourers are paid low wages; rural livelihood"
+  },
+  {
+    "questionId": "1f0571fac11c-q064",
+    "topicId": "ped_classroom_processes",
+    "confidence": "high",
+    "why": "how to make curricular activities engaging in class"
+  },
+  {
+    "questionId": "1f0571fac11c-q065",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "types of charts as classroom teaching aids"
+  },
+  {
+    "questionId": "1f0571fac11c-q067",
+    "topicId": "ped_concept_nature",
+    "confidence": "high",
+    "why": "which statement describes the nature of Social Science"
+  },
+  {
+    "questionId": "1f0571fac11c-q071",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "what the Indian Constitution lays down"
+  },
+  {
+    "questionId": "1f0571fac11c-q072",
+    "topicId": "spl_local_government",
+    "confidence": "high",
+    "why": "objective of establishing Panchayati Raj institutions"
+  },
+  {
+    "questionId": "1f0571fac11c-q073",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "which content topics suit middle-level learners; scope of the subject"
+  },
+  {
+    "questionId": "1f0571fac11c-q075",
+    "topicId": "ped_problems_teaching",
+    "confidence": "high",
+    "why": "methods to overcome teaching challenges in Social Science"
+  },
+  {
+    "questionId": "1f0571fac11c-q077",
+    "topicId": "ped_critical_thinking",
+    "confidence": "high",
+    "why": "identifies exploratory and critical questions"
+  },
+  {
+    "questionId": "1f0571fac11c-q078",
+    "topicId": "spl_making_a_living",
+    "confidence": "high",
+    "why": "why workshops employ casual workers; urban livelihood"
+  },
+  {
+    "questionId": "1f0571fac11c-q081",
+    "topicId": "hist_tribal_societies",
+    "confidence": "high",
+    "why": "religion in nineteenth-century Adivasi history"
+  },
+  {
+    "questionId": "1f0571fac11c-q085",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "which questions assess the evaluation level of cognitive ability"
+  },
+  {
+    "questionId": "1f0571fac11c-q086",
+    "topicId": "ped_classroom_processes",
+    "confidence": "high",
+    "why": "first stage of the 5E lesson-plan approach in a group activity"
+  },
+  {
+    "questionId": "1f0571fac11c-q087",
+    "topicId": "ped_sources",
+    "confidence": "high",
+    "why": "which source gives first-hand authentic data; primary vs secondary"
+  },
+  {
+    "questionId": "1f0571fac11c-q089",
+    "topicId": "ped_project_work",
+    "confidence": "high",
+    "why": "first skill developed on a field trip"
+  },
+  {
+    "questionId": "6e47b7a951a6-q031",
+    "topicId": "hist_first_cities",
+    "confidence": "high",
+    "why": "Harappan metallurgy"
+  },
+  {
+    "questionId": "6e47b7a951a6-q032",
+    "topicId": "hist_women_reform",
+    "confidence": "medium",
+    "why": "Singh Sabhas as nineteenth-century reform associations"
+  },
+  {
+    "questionId": "6e47b7a951a6-q033",
+    "topicId": "hist_distant_lands",
+    "confidence": "medium",
+    "why": "Masulipatnam as a seventeenth-century trading port; nearest trade topic"
+  },
+  {
+    "questionId": "6e47b7a951a6-q034",
+    "topicId": null,
+    "confidence": "none",
+    "why": "matching item spans New Kings (hiranyagarbha, prashasti) and Mughal (pishtaq, nastaliq) vocabulary"
+  },
+  {
+    "questionId": "6e47b7a951a6-q038",
+    "topicId": "hist_first_farmers",
+    "confidence": "high",
+    "why": "Mehrgarh, the early farming and herding site"
+  },
+  {
+    "questionId": "6e47b7a951a6-q040",
+    "topicId": "hist_regional_cultures",
+    "confidence": "high",
+    "why": "Marathi bhakti hymn and its composer"
+  },
+  {
+    "questionId": "6e47b7a951a6-q045",
+    "topicId": "geo_planet_earth",
+    "confidence": "high",
+    "why": "consequence of the earth not rotating"
+  },
+  {
+    "questionId": "6e47b7a951a6-q046",
+    "topicId": "geo_globe",
+    "confidence": "medium",
+    "why": "what to teach first when reading a map: direction, scale, symbols"
+  },
+  {
+    "questionId": "6e47b7a951a6-q047",
+    "topicId": "geo_globe",
+    "confidence": "high",
+    "why": "local time from longitude against IST"
+  },
+  {
+    "questionId": "6e47b7a951a6-q050",
+    "topicId": "geo_environment",
+    "confidence": "high",
+    "why": "P, S and L seismic waves"
+  },
+  {
+    "questionId": "6e47b7a951a6-q053",
+    "topicId": "geo_air",
+    "confidence": "high",
+    "why": "why hot air rises; air density"
+  },
+  {
+    "questionId": "6e47b7a951a6-q055",
+    "topicId": "geo_resources",
+    "confidence": "high",
+    "why": "share of world electricity by power resource"
+  },
+  {
+    "questionId": "6e47b7a951a6-q056",
+    "topicId": "geo_resources",
+    "confidence": "medium",
+    "why": "Pittsburgh steel and its mineral inputs; industry/resource location"
+  },
+  {
+    "questionId": "6e47b7a951a6-q057",
+    "topicId": "geo_agriculture",
+    "confidence": "high",
+    "why": "identify the crop from its growing conditions"
+  },
+  {
+    "questionId": "6e47b7a951a6-q058",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "Ambedkar's religious conversion"
+  },
+  {
+    "questionId": "6e47b7a951a6-q060",
+    "topicId": "hist_after_independence",
+    "confidence": "high",
+    "why": "basis of the 1956 reorganisation of states"
+  },
+  {
+    "questionId": "6e47b7a951a6-q062",
+    "topicId": "spl_making_a_living",
+    "confidence": "medium",
+    "why": "which arrangement gives small producers a fair price"
+  },
+  {
+    "questionId": "6e47b7a951a6-q063",
+    "topicId": "spl_making_a_living",
+    "confidence": "high",
+    "why": "street vendors and casual workers; urban livelihoods"
+  },
+  {
+    "questionId": "6e47b7a951a6-q064",
+    "topicId": "spl_state_government",
+    "confidence": "medium",
+    "why": "how a party gains a majority of constituencies in a State"
+  },
+  {
+    "questionId": "6e47b7a951a6-q066",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "basic structure doctrine and the amending power"
+  },
+  {
+    "questionId": "6e47b7a951a6-q069",
+    "topicId": "spl_social_justice",
+    "confidence": "high",
+    "why": "Forest Rights Act 2006 and scheduled tribes"
+  },
+  {
+    "questionId": "6e47b7a951a6-q072",
+    "topicId": "ped_classroom_processes",
+    "confidence": "high",
+    "why": "why a teacher should discuss current affairs in class"
+  },
+  {
+    "questionId": "6e47b7a951a6-q073",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "concept mapping as a teaching technique"
+  },
+  {
+    "questionId": "6e47b7a951a6-q074",
+    "topicId": "spl_gender",
+    "confidence": "high",
+    "why": "refusing a male role because of her sex; gender stereotyping"
+  },
+  {
+    "questionId": "15cbde5848f9-q032",
+    "topicId": "hist_nationalist_movement",
+    "confidence": "high",
+    "why": "economic demands of the early Congress"
+  },
+  {
+    "questionId": "15cbde5848f9-q035",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "leather workers' wartime opportunity; caste and social mobility"
+  },
+  {
+    "questionId": "15cbde5848f9-q037",
+    "topicId": "geo_environment",
+    "confidence": "medium",
+    "why": "age and location of the earth's oldest rocks"
+  },
+  {
+    "questionId": "15cbde5848f9-q039",
+    "topicId": "geo_agriculture",
+    "confidence": "high",
+    "why": "climatic requirements of coffee and tea"
+  },
+  {
+    "questionId": "15cbde5848f9-q040",
+    "topicId": "hist_after_independence",
+    "confidence": "high",
+    "why": "erstwhile princely states as administrative units, 1947-56"
+  },
+  {
+    "questionId": "15cbde5848f9-q043",
+    "topicId": "geo_globe",
+    "confidence": "high",
+    "why": "local time from longitude against IST"
+  },
+  {
+    "questionId": "15cbde5848f9-q044",
+    "topicId": "hist_women_reform",
+    "confidence": "high",
+    "why": "why women were taught at home in colonial India"
+  },
+  {
+    "questionId": "15cbde5848f9-q045",
+    "topicId": "hist_distant_lands",
+    "confidence": "medium",
+    "why": "grama-bhojaka, village headman of the early historic village"
+  },
+  {
+    "questionId": "15cbde5848f9-q046",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "Shri Narayan Guru and caste equality"
+  },
+  {
+    "questionId": "15cbde5848f9-q049",
+    "topicId": "geo_resources",
+    "confidence": "high",
+    "why": "reading a population pyramid; human resources"
+  },
+  {
+    "questionId": "15cbde5848f9-q051",
+    "topicId": "hist_architecture",
+    "confidence": "high",
+    "why": "shikhara and superstructure in temple building"
+  },
+  {
+    "questionId": "15cbde5848f9-q054",
+    "topicId": "geo_globe",
+    "confidence": "high",
+    "why": "colour convention for a plateau on a physical map"
+  },
+  {
+    "questionId": "15cbde5848f9-q055",
+    "topicId": "geo_resources",
+    "confidence": "high",
+    "why": "measures to control soil erosion; conserving a natural resource"
+  },
+  {
+    "questionId": "15cbde5848f9-q057",
+    "topicId": "hist_company_power",
+    "confidence": "high",
+    "why": "the Company's doctrine of Paramountcy"
+  },
+  {
+    "questionId": "15cbde5848f9-q060",
+    "topicId": "hist_creation_empire",
+    "confidence": "high",
+    "why": "watan jagirs granted by Akbar"
+  },
+  {
+    "questionId": "15cbde5848f9-q063",
+    "topicId": "spl_making_a_living",
+    "confidence": "medium",
+    "why": "non-farm work and seasonal rural-to-urban migration"
+  },
+  {
+    "questionId": "15cbde5848f9-q066",
+    "topicId": "ped_project_work",
+    "confidence": "high",
+    "why": "what learners gain from real-world project work"
+  },
+  {
+    "questionId": "15cbde5848f9-q067",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "source of Liberty, Equality, Fraternity in the Constitution"
+  },
+  {
+    "questionId": "15cbde5848f9-q068",
+    "topicId": "spl_judiciary",
+    "confidence": "high",
+    "why": "essential elements of a fair trial"
+  },
+  {
+    "questionId": "15cbde5848f9-q070",
+    "topicId": "spl_social_justice",
+    "confidence": "medium",
+    "why": "where Adivasi communities are concentrated"
+  },
+  {
+    "questionId": "15cbde5848f9-q071",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "plurality of perspectives in the Social Science curriculum"
+  },
+  {
+    "questionId": "15cbde5848f9-q072",
+    "topicId": "ped_concept_nature",
+    "confidence": "high",
+    "why": "status of social sciences relative to natural sciences"
+  },
+  {
+    "questionId": "15cbde5848f9-q075",
+    "topicId": "spl_democracy",
+    "confidence": "high",
+    "why": "what marks a democracy"
+  },
+  {
+    "questionId": "15cbde5848f9-q076",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "matching indicators of assessment to abilities"
+  },
+  {
+    "questionId": "15cbde5848f9-q077",
+    "topicId": "spl_gender",
+    "confidence": "high",
+    "why": "paid work plus housework; the double burden"
+  },
+  {
+    "questionId": "15cbde5848f9-q078",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "what relationships the Constitution determines"
+  },
+  {
+    "questionId": "15cbde5848f9-q079",
+    "topicId": "spl_government",
+    "confidence": "medium",
+    "why": "medical ethics code on generic drugs; government's role in health"
+  },
+  {
+    "questionId": "15cbde5848f9-q080",
+    "topicId": "spl_making_a_living",
+    "confidence": "high",
+    "why": "landless agricultural labourers in rural India"
+  },
+  {
+    "questionId": "15cbde5848f9-q081",
+    "topicId": "ped_sources",
+    "confidence": "medium",
+    "why": "choosing source material to teach the theme of discrimination"
+  },
+  {
+    "questionId": "15cbde5848f9-q083",
+    "topicId": "ped_critical_thinking",
+    "confidence": "high",
+    "why": "which questions give scope for critical thinking"
+  },
+  {
+    "questionId": "15cbde5848f9-q087",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "whether values can be taught through social studies; aims of the subject"
+  },
+  {
+    "questionId": "15cbde5848f9-q089",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "class rule-making activity used to introduce a topic"
+  },
+  {
+    "questionId": "6e47b7a951a6-q075",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "teacher's duties in an inclusive Social Science classroom"
+  },
+  {
+    "questionId": "6e47b7a951a6-q083",
+    "topicId": "ped_sources",
+    "confidence": "medium",
+    "why": "judicious selection of local/folk material as teaching source"
+  },
+  {
+    "questionId": "6e47b7a951a6-q086",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "evaluation procedures under the RTE Act 2009"
+  },
+  {
+    "questionId": "6e47b7a951a6-q087",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "characteristics of evaluation in social studies"
+  },
+  {
+    "questionId": "6e47b7a951a6-q089",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "rubrics/portfolio as evidence of progressive growth"
+  },
+  {
+    "questionId": "c299bbe46925-q031",
+    "topicId": "hist_when_where_how",
+    "confidence": "high",
+    "why": "archives as the store of manuscripts and official records"
+  },
+  {
+    "questionId": "c299bbe46925-q033",
+    "topicId": "hist_regional_cultures",
+    "confidence": "medium",
+    "why": "temples, gurdwara town and Sufis; religion in medieval society"
+  },
+  {
+    "questionId": "c299bbe46925-q034",
+    "topicId": "hist_when_where_how",
+    "confidence": "medium",
+    "why": "Kalhana's range of sources and his contrast with prashastis"
+  },
+  {
+    "questionId": "c299bbe46925-q035",
+    "topicId": "hist_creation_empire",
+    "confidence": "medium",
+    "why": "Shivaji, deshmukhs and kunbis; Maratha state in the Mughal era"
+  },
+  {
+    "questionId": "c299bbe46925-q036",
+    "topicId": "hist_social_change",
+    "confidence": "high",
+    "why": "the Ahoms building a state; tribes and settled communities"
+  },
+  {
+    "questionId": "c299bbe46925-q038",
+    "topicId": "hist_company_power",
+    "confidence": "high",
+    "why": "sequence of Company revenue and trade policy after the Diwani"
+  },
+  {
+    "questionId": "c299bbe46925-q041",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "non-Brahman movement and its social base"
+  },
+  {
+    "questionId": "c299bbe46925-q045",
+    "topicId": "geo_planet_earth",
+    "confidence": "high",
+    "why": "period of the moon's revolution around the earth"
+  },
+  {
+    "questionId": "c299bbe46925-q048",
+    "topicId": "geo_globe",
+    "confidence": "high",
+    "why": "sun's position at midday and local time"
+  },
+  {
+    "questionId": "c299bbe46925-q051",
+    "topicId": "geo_human_environment",
+    "confidence": "medium",
+    "why": "why tourism is a major activity in Ladakh; life in a cold desert"
+  },
+  {
+    "questionId": "c299bbe46925-q052",
+    "topicId": "geo_air",
+    "confidence": "high",
+    "why": "composition of the atmosphere"
+  },
+  {
+    "questionId": "c299bbe46925-q055",
+    "topicId": "geo_resources",
+    "confidence": "high",
+    "why": "causes of species becoming endangered; wildlife conservation"
+  },
+  {
+    "questionId": "c299bbe46925-q056",
+    "topicId": "geo_resources",
+    "confidence": "high",
+    "why": "definition of potential resources"
+  },
+  {
+    "questionId": "c299bbe46925-q060",
+    "topicId": "spl_democracy",
+    "confidence": "high",
+    "why": "characteristics of a democratic government"
+  },
+  {
+    "questionId": "c299bbe46925-q062",
+    "topicId": "spl_making_a_living",
+    "confidence": "medium",
+    "why": "producer to consumer market chain"
+  },
+  {
+    "questionId": "c299bbe46925-q063",
+    "topicId": "spl_making_a_living",
+    "confidence": "medium",
+    "why": "agricultural labourers and rural-to-urban migration"
+  },
+  {
+    "questionId": "c299bbe46925-q065",
+    "topicId": "spl_gender",
+    "confidence": "high",
+    "why": "meaning of the double burden"
+  },
+  {
+    "questionId": "c299bbe46925-q067",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "which acts violate Article 21"
+  },
+  {
+    "questionId": "c299bbe46925-q068",
+    "topicId": "spl_judiciary",
+    "confidence": "high",
+    "why": "FIR, detention and police investigation"
+  },
+  {
+    "questionId": "c299bbe46925-q071",
+    "topicId": "ped_concept_nature",
+    "confidence": "high",
+    "why": "opening disciplinary boundaries; interdisciplinary nature of the subject"
+  },
+  {
+    "questionId": "c299bbe46925-q072",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "foundational logic behind drafting the social science syllabus"
+  },
+  {
+    "questionId": "c299bbe46925-q073",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "narrating a story of an accused as a case study resource"
+  },
+  {
+    "questionId": "c299bbe46925-q075",
+    "topicId": "ped_concept_nature",
+    "confidence": "high",
+    "why": "aims of social science education for the learner"
+  },
+  {
+    "questionId": "c299bbe46925-q076",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "teaching social science as a professional activity"
+  },
+  {
+    "questionId": "c299bbe46925-q078",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "museum visits and Social Science Week to make the subject enjoyable"
+  },
+  {
+    "questionId": "c299bbe46925-q079",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "meaningful learning, language and doing in the classroom"
+  },
+  {
+    "questionId": "c299bbe46925-q080",
+    "topicId": "spl_local_government",
+    "confidence": "high",
+    "why": "Panchayati Raj and people's participation"
+  },
+  {
+    "questionId": "c299bbe46925-q082",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "shift from utilitarianism to egalitarianism as an aim of the subject"
+  },
+  {
+    "questionId": "c299bbe46925-q083",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "social science admits opposing answers; teacher should not preach"
+  },
+  {
+    "questionId": "c299bbe46925-q084",
+    "topicId": "ped_project_work",
+    "confidence": "high",
+    "why": "field tasks (blacksmith, megalithic site) to build historical understanding"
+  },
+  {
+    "questionId": "c299bbe46925-q085",
+    "topicId": "ped_evaluation",
+    "confidence": "medium",
+    "why": "criteria for assessing a wallpaper project"
+  },
+  {
+    "questionId": "c299bbe46925-q087",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "what is true about testing"
+  },
+  {
+    "questionId": "c299bbe46925-q088",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "learning is continuous and not confined to school premises"
+  },
+  {
+    "questionId": "c299bbe46925-q089",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "diagnostic function of testing"
+  },
+  {
+    "questionId": "c299bbe46925-q090",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "paper-pencil tests and assigning numbers in testing"
+  },
+  {
+    "questionId": "fd8463c56926-q033",
+    "topicId": "geo_agriculture",
+    "confidence": "high",
+    "why": "matching crops to climatic requirements"
+  },
+  {
+    "questionId": "fd8463c56926-q034",
+    "topicId": "geo_water",
+    "confidence": "high",
+    "why": "causes of water scarcity"
+  },
+  {
+    "questionId": "fd8463c56926-q036",
+    "topicId": "geo_globe",
+    "confidence": "high",
+    "why": "why the globe is a true model of the earth"
+  },
+  {
+    "questionId": "fd8463c56926-q037",
+    "topicId": "hist_when_where_how",
+    "confidence": "high",
+    "why": "James Mill's periodisation of Indian history; how history is written"
+  },
+  {
+    "questionId": "fd8463c56926-q038",
+    "topicId": "geo_human_environment",
+    "confidence": "high",
+    "why": "means of communication and the global society"
+  },
+  {
+    "questionId": "fd8463c56926-q041",
+    "topicId": "geo_agriculture",
+    "confidence": "high",
+    "why": "commercial farming in the USA"
+  },
+  {
+    "questionId": "fd8463c56926-q042",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "founder of the Satnami movement"
+  },
+  {
+    "questionId": "fd8463c56926-q045",
+    "topicId": "geo_water",
+    "confidence": "medium",
+    "why": "why rainfall matters; fresh water and groundwater"
+  },
+  {
+    "questionId": "fd8463c56926-q047",
+    "topicId": "hist_first_empire",
+    "confidence": "high",
+    "why": "Rampurva Bull, a Mauryan sculpture and its findspot"
+  },
+  {
+    "questionId": "fd8463c56926-q048",
+    "topicId": null,
+    "confidence": "none",
+    "why": "first cotton mill in Bombay; colonial industry has no topic in the bulletin list"
+  },
+  {
+    "questionId": "fd8463c56926-q052",
+    "topicId": "hist_social_change",
+    "confidence": "high",
+    "why": "tribes, nomads and settled communities"
+  },
+  {
+    "questionId": "fd8463c56926-q053",
+    "topicId": "geo_water",
+    "confidence": "high",
+    "why": "why rivers form waterfalls"
+  },
+  {
+    "questionId": "fd8463c56926-q055",
+    "topicId": "hist_nationalist_movement",
+    "confidence": "high",
+    "why": "early political associations and the growth of nationalism"
+  },
+  {
+    "questionId": "fd8463c56926-q056",
+    "topicId": "hist_distant_lands",
+    "confidence": "medium",
+    "why": "composer of the Tamil epic Manimekalai; Sangam-age literature"
+  },
+  {
+    "questionId": "fd8463c56926-q057",
+    "topicId": "hist_architecture",
+    "confidence": "high",
+    "why": "Bengal temple building and the roof form"
+  },
+  {
+    "questionId": "fd8463c56926-q058",
+    "topicId": "hist_tribal_societies",
+    "confidence": "high",
+    "why": "dates of the Kol, Santhal, Bastar and Warli tribal revolts"
+  },
+  {
+    "questionId": "fd8463c56926-q059",
+    "topicId": "geo_human_environment",
+    "confidence": "medium",
+    "why": "Ladakh as 'Little Tibet'"
+  },
+  {
+    "questionId": "fd8463c56926-q062",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "what improves the teaching-learning environment of the classroom"
+  },
+  {
+    "questionId": "fd8463c56926-q067",
+    "topicId": "spl_social_justice",
+    "confidence": "high",
+    "why": "what does not address marginalisation"
+  },
+  {
+    "questionId": "fd8463c56926-q069",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "what Political Science as a discipline does; nature of the subject"
+  },
+  {
+    "questionId": "fd8463c56926-q070",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "active engagement of learners in constructing knowledge"
+  },
+  {
+    "questionId": "fd8463c56926-q072",
+    "topicId": "spl_social_justice",
+    "confidence": "high",
+    "why": "which provision does not promote social justice"
+  },
+  {
+    "questionId": "fd8463c56926-q073",
+    "topicId": "ped_problems_teaching",
+    "confidence": "medium",
+    "why": "the subject being seen as a girls' subject; status of Social Science"
+  },
+  {
+    "questionId": "fd8463c56926-q076",
+    "topicId": "ped_classroom_processes",
+    "confidence": "high",
+    "why": "how to conduct a class discussion on gender and caste discrimination"
+  },
+  {
+    "questionId": "fd8463c56926-q078",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "why textbooks should show plurality of people"
+  },
+  {
+    "questionId": "fd8463c56926-q079",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "state intervention in religion under the Constitution; secularism"
+  },
+  {
+    "questionId": "fd8463c56926-q081",
+    "topicId": "ped_enquiry_evidence",
+    "confidence": "medium",
+    "why": "turning social science facts into processes of social inquiry"
+  },
+  {
+    "questionId": "fd8463c56926-q083",
+    "topicId": "ped_classroom_processes",
+    "confidence": "high",
+    "why": "allowing questions and debate to promote equity in class"
+  },
+  {
+    "questionId": "fd8463c56926-q085",
+    "topicId": "ped_classroom_processes",
+    "confidence": "high",
+    "why": "goals of organising a classroom debate"
+  },
+  {
+    "questionId": "fd8463c56926-q086",
+    "topicId": "spl_state_government",
+    "confidence": "high",
+    "why": "MLAs, public works and elected representatives"
+  },
+  {
+    "questionId": "fd8463c56926-q088",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "how Social Studies entered the school curriculum as a subject"
+  },
+  {
+    "questionId": "fd8463c56926-q089",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "what is correct about testing"
+  },
+  {
+    "questionId": "f88bf1b3195f-q032",
+    "topicId": "hist_after_independence",
+    "confidence": "high",
+    "why": "dates of state formation and the States Reorganisation Commission"
+  },
+  {
+    "questionId": "f88bf1b3195f-q033",
+    "topicId": "hist_early_states",
+    "confidence": "high",
+    "why": "the Vajji gana-sangha and its assemblies"
+  },
+  {
+    "questionId": "f88bf1b3195f-q035",
+    "topicId": "hist_new_kings",
+    "confidence": "high",
+    "why": "vetti, forced-labour tax under the Cholas"
+  },
+  {
+    "questionId": "f88bf1b3195f-q036",
+    "topicId": "hist_caste_system",
+    "confidence": "medium",
+    "why": "missionary schools for tribal and lower-caste children in the 19th century"
+  },
+  {
+    "questionId": "f88bf1b3195f-q037",
+    "topicId": "hist_first_farmers",
+    "confidence": "high",
+    "why": "matching early crops and animals to Neolithic sites"
+  },
+  {
+    "questionId": "f88bf1b3195f-q039",
+    "topicId": "hist_social_change",
+    "confidence": "high",
+    "why": "Ahom migration to the Brahmaputra valley"
+  },
+  {
+    "questionId": "f88bf1b3195f-q043",
+    "topicId": "hist_nationalist_movement",
+    "confidence": "high",
+    "why": "demands of the Indian National Congress in the colonial period"
+  },
+  {
+    "questionId": "f88bf1b3195f-q045",
+    "topicId": "geo_environment",
+    "confidence": "medium",
+    "why": "deciduous trees shedding leaves; vegetation adapting to climate"
+  },
+  {
+    "questionId": "f88bf1b3195f-q048",
+    "topicId": "geo_environment",
+    "confidence": "medium",
+    "why": "matching forest types to characteristic trees"
+  },
+  {
+    "questionId": "f88bf1b3195f-q050",
+    "topicId": "geo_resources",
+    "confidence": "high",
+    "why": "reading a population pyramid; human resources"
+  },
+  {
+    "questionId": "f88bf1b3195f-q052",
+    "topicId": "geo_air",
+    "confidence": "high",
+    "why": "humidity and the rate of evaporation"
+  },
+  {
+    "questionId": "f88bf1b3195f-q053",
+    "topicId": "geo_resources",
+    "confidence": "medium",
+    "why": "migration and population change; human resources"
+  },
+  {
+    "questionId": "f88bf1b3195f-q054",
+    "topicId": "geo_globe",
+    "confidence": "high",
+    "why": "local time from longitude against IST"
+  },
+  {
+    "questionId": "f88bf1b3195f-q055",
+    "topicId": "geo_air",
+    "confidence": "high",
+    "why": "polar easterlies deflected by the earth's rotation"
+  },
+  {
+    "questionId": "f88bf1b3195f-q058",
+    "topicId": "hist_company_power",
+    "confidence": "medium",
+    "why": "Vasco da Gama's landing and the sea route to India"
+  },
+  {
+    "questionId": "f88bf1b3195f-q059",
+    "topicId": "spl_diversity",
+    "confidence": "medium",
+    "why": "Rosa Parks and racial discrimination"
+  },
+  {
+    "questionId": "f88bf1b3195f-q061",
+    "topicId": "spl_social_justice",
+    "confidence": "high",
+    "why": "enforcing law to protect the weak from the strong"
+  },
+  {
+    "questionId": "f88bf1b3195f-q062",
+    "topicId": "spl_government",
+    "confidence": "medium",
+    "why": "medical ethics code on generic drugs; government's role in health"
+  },
+  {
+    "questionId": "f88bf1b3195f-q063",
+    "topicId": "spl_making_a_living",
+    "confidence": "medium",
+    "why": "ginning mill in the cotton chain"
+  },
+  {
+    "questionId": "f88bf1b3195f-q067",
+    "topicId": "spl_gender",
+    "confidence": "high",
+    "why": "housework seen as women's natural work; stereotype"
+  },
+  {
+    "questionId": "f88bf1b3195f-q068",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "features of the Indian Constitution"
+  },
+  {
+    "questionId": "f88bf1b3195f-q075",
+    "topicId": "ped_critical_thinking",
+    "confidence": "high",
+    "why": "which question types develop critical or logical thinking"
+  },
+  {
+    "questionId": "f88bf1b3195f-q078",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "how a teacher should handle a discussion of gender roles"
+  },
+  {
+    "questionId": "f88bf1b3195f-q085",
+    "topicId": "ped_project_work",
+    "confidence": "medium",
+    "why": "which reference material to allow for a project on Shivaji"
+  },
+  {
+    "questionId": "f88bf1b3195f-q086",
+    "topicId": "ped_critical_thinking",
+    "confidence": "high",
+    "why": "which tasks promote analytical thinking and creativity"
+  },
+  {
+    "questionId": "f88bf1b3195f-q087",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "what the aim of a social science teacher should be"
+  },
+  {
+    "questionId": "f88bf1b3195f-q088",
+    "topicId": "ped_classroom_processes",
+    "confidence": "high",
+    "why": "correct order of the 5E lesson-plan model"
+  },
+  {
+    "questionId": "f88bf1b3195f-q089",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "teaching through lived experience rather than generalised notes"
+  },
+  {
+    "questionId": "f88bf1b3195f-q090",
+    "topicId": "ped_concept_nature",
+    "confidence": "high",
+    "why": "whether social science is only scientific and unrelated to art"
+  },
+  {
+    "questionId": "1f0571fac11c-q048",
+    "topicId": "geo_environment",
+    "confidence": "medium",
+    "why": "date of World Environment Day"
+  },
+  {
+    "questionId": "1f0571fac11c-q051",
+    "topicId": null,
+    "confidence": "none",
+    "why": "colonial cotton textile trade decline; no matching topic in the bulletin list"
+  },
+  {
+    "questionId": "b505a4885a29-q031",
+    "topicId": "geo_globe",
+    "confidence": "high",
+    "why": "colour convention for a plateau on a physical map"
+  },
+  {
+    "questionId": "b505a4885a29-q032",
+    "topicId": "geo_resources",
+    "confidence": "high",
+    "why": "measures to control soil erosion; conserving a natural resource"
+  },
+  {
+    "questionId": "b505a4885a29-q034",
+    "topicId": "hist_creation_empire",
+    "confidence": "high",
+    "why": "watan jagirs granted by Akbar"
+  },
+  {
+    "questionId": "b505a4885a29-q035",
+    "topicId": "hist_company_power",
+    "confidence": "high",
+    "why": "the Company's doctrine of Paramountcy"
+  },
+  {
+    "questionId": "b505a4885a29-q038",
+    "topicId": "geo_resources",
+    "confidence": "high",
+    "why": "reading a population pyramid; human resources"
+  },
+  {
+    "questionId": "b505a4885a29-q042",
+    "topicId": "hist_nationalist_movement",
+    "confidence": "high",
+    "why": "economic demands of the early Congress"
+  },
+  {
+    "questionId": "b505a4885a29-q044",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "Shri Narayan Guru and caste equality"
+  },
+  {
+    "questionId": "b505a4885a29-q048",
+    "topicId": "hist_architecture",
+    "confidence": "high",
+    "why": "shikhara and superstructure in temple building"
+  },
+  {
+    "questionId": "b505a4885a29-q049",
+    "topicId": "hist_distant_lands",
+    "confidence": "medium",
+    "why": "grama-bhojaka, village headman of the early historic village"
+  },
+  {
+    "questionId": "b505a4885a29-q050",
+    "topicId": "geo_agriculture",
+    "confidence": "high",
+    "why": "climatic requirements of coffee and tea"
+  },
+  {
+    "questionId": "b505a4885a29-q051",
+    "topicId": "hist_after_independence",
+    "confidence": "high",
+    "why": "erstwhile princely states as administrative units, 1947-56"
+  },
+  {
+    "questionId": "b505a4885a29-q052",
+    "topicId": "hist_women_reform",
+    "confidence": "high",
+    "why": "why women were taught at home in colonial India"
+  },
+  {
+    "questionId": "b505a4885a29-q055",
+    "topicId": "hist_caste_system",
+    "confidence": "high",
+    "why": "leather workers' wartime opportunity; caste and social mobility"
+  },
+  {
+    "questionId": "b505a4885a29-q057",
+    "topicId": "geo_globe",
+    "confidence": "high",
+    "why": "local time from longitude against IST"
+  },
+  {
+    "questionId": "b505a4885a29-q059",
+    "topicId": "geo_environment",
+    "confidence": "medium",
+    "why": "age and location of the earth's oldest rocks"
+  },
+  {
+    "questionId": "b505a4885a29-q063",
+    "topicId": "ped_classroom_processes",
+    "confidence": "medium",
+    "why": "class rule-making activity used to introduce a topic"
+  },
+  {
+    "questionId": "b505a4885a29-q065",
+    "topicId": "spl_democracy",
+    "confidence": "high",
+    "why": "what marks a democracy"
+  },
+  {
+    "questionId": "b505a4885a29-q067",
+    "topicId": "spl_judiciary",
+    "confidence": "high",
+    "why": "essential elements of a fair trial"
+  },
+  {
+    "questionId": "b505a4885a29-q068",
+    "topicId": "spl_government",
+    "confidence": "medium",
+    "why": "medical ethics code on generic drugs; government's role in health"
+  },
+  {
+    "questionId": "b505a4885a29-q069",
+    "topicId": "ped_concept_nature",
+    "confidence": "high",
+    "why": "status of social sciences relative to natural sciences"
+  },
+  {
+    "questionId": "b505a4885a29-q070",
+    "topicId": "ped_sources",
+    "confidence": "medium",
+    "why": "choosing source material to teach the theme of discrimination"
+  },
+  {
+    "questionId": "b505a4885a29-q071",
+    "topicId": "ped_evaluation",
+    "confidence": "high",
+    "why": "matching indicators of assessment to abilities"
+  },
+  {
+    "questionId": "b505a4885a29-q072",
+    "topicId": "spl_gender",
+    "confidence": "high",
+    "why": "paid work plus housework; the double burden"
+  },
+  {
+    "questionId": "b505a4885a29-q075",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "whether values can be taught through social studies; aims of the subject"
+  },
+  {
+    "questionId": "b505a4885a29-q077",
+    "topicId": "ped_project_work",
+    "confidence": "high",
+    "why": "what learners gain from real-world project work"
+  },
+  {
+    "questionId": "b505a4885a29-q082",
+    "topicId": "ped_critical_thinking",
+    "confidence": "high",
+    "why": "which questions give scope for critical thinking"
+  },
+  {
+    "questionId": "b505a4885a29-q083",
+    "topicId": "spl_making_a_living",
+    "confidence": "high",
+    "why": "landless agricultural labourers in rural India"
+  },
+  {
+    "questionId": "b505a4885a29-q084",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "source of Liberty, Equality, Fraternity in the Constitution"
+  },
+  {
+    "questionId": "b505a4885a29-q086",
+    "topicId": "spl_social_justice",
+    "confidence": "medium",
+    "why": "where Adivasi communities are concentrated"
+  },
+  {
+    "questionId": "b505a4885a29-q087",
+    "topicId": "spl_making_a_living",
+    "confidence": "medium",
+    "why": "non-farm work and seasonal rural-to-urban migration"
+  },
+  {
+    "questionId": "b505a4885a29-q089",
+    "topicId": "ped_concept_nature",
+    "confidence": "medium",
+    "why": "plurality of perspectives in the Social Science curriculum"
+  },
+  {
+    "questionId": "b505a4885a29-q090",
+    "topicId": "spl_constitution",
+    "confidence": "high",
+    "why": "what relationships the Constitution determines"
+  }
+]

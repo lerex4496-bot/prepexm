@@ -73,6 +73,8 @@ const en: Dict = {
   'today.afternoon': 'Good afternoon',
   'today.evening': 'Good evening',
   'today.planTitle': 'Today',
+  'today.loading': 'Loading your plan…',
+  'today.loadFailed': 'Could not load your plan',
   'today.summary': '{count} things · about {minutes} min',
   'today.start': 'Start',
   'today.allDone': 'That’s today done.',
@@ -105,6 +107,10 @@ const en: Dict = {
   'papers.mocks': 'Mock papers',
   'papers.mocksSoon': 'Practice sets and mocks are coming.',
   'papers.empty': 'No papers yet',
+  'papers.neetSoon': 'NEET papers aren’t ready yet',
+  'papers.neetSoonBody':
+    'This build ships CTET papers only. NEET question papers are still being '
+    + 'prepared — switch to CTET in Settings to use the app meanwhile.',
   'papers.emptyBody': 'Approved papers appear here once content has been reviewed.',
   'papers.questions': '{n} questions',
   'papers.minutes': '{n} min',
@@ -115,6 +121,33 @@ const en: Dict = {
   'papers.attempts': '{n} attempts',
   'papers.devBundle': 'Development bundle — some papers are incomplete',
   'badge.official': 'OFFICIAL',
+  'badge.mock': 'MOCK',
+
+  // ── mock tests ────────────────────────────────────────────────────────────
+  // Every question in a mock came off a real CTET paper with the board's own
+  // answer key behind it. Only the selection and order are new, and the copy
+  // says so — she should never have to wonder whether a question is invented.
+  'mock.intro':
+    'A full 150-question paper under the real clock, built from questions that appeared on past CTET papers — same sections, same marks, new order.',
+  'mock.start': 'Start a new mock test',
+  'mock.title': 'Mock test',
+  'mock.previous': 'Your mock tests',
+  'mock.focused': 'Shorter practice',
+  'mock.priority': 'Most-asked topics',
+  'mock.priorityBody':
+    'Drawn from the topics that appeared in all {n} of your past papers. Measured from the real papers, not predicted.',
+  'mock.weak': 'Your weak areas',
+  'mock.weakBody': '{n} questions you have got wrong before, the repeat offenders first.',
+  'mock.section.sst': 'Social Studies only',
+  'mock.section.cdp': 'Child Development only',
+  'mock.section.lang1': 'Language I only',
+  'mock.section.lang2': 'Language II only',
+  'mock.sectionBody': '{n} questions · {min} minutes — the real pace, in one sitting.',
+  'mock.byTopic': 'Practise one topic',
+  'mock.hideTopics': 'Hide topics',
+  'mock.inSittings': 'in {n} of {of} papers',
+  'mock.short':
+    'This mock is short of {n} questions in {subject} — there aren’t enough approved questions yet.',
 
   // ── exam player ───────────────────────────────────────────────────────────
   'exam.loading': 'Loading paper…',
@@ -168,6 +201,7 @@ const en: Dict = {
   'review.generatedNow': 'Generated just now from the official answer key.',
   'review.explainFailed': 'Could not generate an explanation.',
   'review.whyWrong': 'Why was this wrong?',
+  'coach.method': 'How to read it',
   'review.howWrong': 'What happened?',
   'review.mistake.conceptual': 'Didn’t know the concept',
   'review.mistake.calculation': 'Calculation slip',
@@ -247,6 +281,64 @@ const en: Dict = {
     'Answered without your textbooks — no sources to show. Check anything important.',
   'ask.unverified': 'FROM THE WEB · not verified against any textbook',
 
+  // Permission consent. Android shows its own dialog at most once per install:
+  // after a denial the system prompt never appears again, so the app has to
+  // explain itself BEFORE asking, and has to say what happened after a refusal
+  // rather than leaving a button that silently does nothing.
+  'perm.cameraTitle': 'Use the camera?',
+  'perm.cameraBody':
+    'StudyMate needs the camera so you can photograph a question instead of typing it out. The photo is read for its text and is not stored anywhere.',
+  'perm.libraryTitle': 'Open your photos?',
+  'perm.libraryBody':
+    'StudyMate needs access to your photos so you can send a picture of a question. Only the picture you choose is read.',
+  'perm.allow': 'Continue',
+  'perm.notNow': 'Not now',
+  'perm.cameraDenied':
+    'The camera is blocked for StudyMate, so the photo could not be taken. You can turn it on in Settings — or just type your question here.',
+  'perm.libraryDenied':
+    'Photo access is blocked for StudyMate, so your gallery could not be opened. You can turn it on in Settings — or just type your question here.',
+  'perm.openSettings': 'Open settings',
+
+  // ── which CTET paper ──────────────────────────────────────────────────────
+  // CTET is two exams under one name, and Paper 2 splits again by elective. A
+  // candidate sits exactly one of these, so showing all three made two thirds
+  // of the practice list questions she will never be asked.
+  'paper.title': 'Which paper are you sitting?',
+  'paper.body': 'CTET Paper 1 and Paper 2 are separate exams. Pick yours and the app only shows that one.',
+  'paper.CTET_P1': 'Paper 1',
+  'paper.CTET_P1.desc': 'Classes 1–5 · Maths and EVS',
+  'paper.CTET_P2_MATHSCI': 'Paper 2 · Maths & Science',
+  'paper.CTET_P2_MATHSCI.desc': 'Classes 6–8 · Mathematics and Science elective',
+  'paper.CTET_P2_SOCSCI': 'Paper 2 · Social Studies',
+  'paper.CTET_P2_SOCSCI.desc': 'Classes 6–8 · Social Studies / Social Science elective',
+  'paper.all': 'All papers',
+  'settings.bundleHolds': 'Bundle holds',
+  'settings.bundleVisible': 'Visible to you',
+  'settings.paper': 'Your paper',
+  'settings.paperHint':
+    'Practice, Today and Learn show only this paper. Your past attempts and mistakes are never hidden by it.',
+
+  // ── chat sessions ─────────────────────────────────────────────────────────
+  'chat.sessions': 'Your chats',
+  'chat.new': 'New chat',
+  'chat.untitled': 'New chat',
+  'chat.rename': 'Rename',
+  'chat.renameTitle': 'Rename this chat',
+  'chat.delete': 'Delete',
+  'chat.deleteConfirm': 'Delete this chat? The messages in it are gone for good.',
+  'chat.deleteAll': 'Delete all chats',
+  'chat.deleteAllConfirm': 'Delete every chat? This cannot be undone.',
+  'chat.empty': 'No chats yet',
+  'chat.emptyBody': 'Ask something and it will be saved here, so you can come back to it before the exam.',
+  'chat.save': 'Save',
+  'chat.cancel': 'Cancel',
+  'chat.close': 'Close',
+  'chat.actions': 'More',
+  'chat.justNow': 'just now',
+  'chat.minutesAgo': '{n}m ago',
+  'chat.hoursAgo': '{n}h ago',
+  'chat.daysAgo': '{n}d ago',
+
 
   // ── account / backup ──────────────────────────────────────────────────────
   'account.title': 'Backup & restore',
@@ -255,6 +347,24 @@ const en: Dict = {
   'account.onThisPhone': 'On this phone',
   'account.localCounts': '{attempts} attempts · {mistakes} mistakes',
   'account.updateSafe': 'Updating the app never touches this. It stays until the app is uninstalled.',
+  // ── backup to a file ──────────────────────────────────────────────────────
+  // Works with no account and no server: she picks the folder, so the copy can
+  // live in Drive or WhatsApp where a lost phone cannot take it.
+  'backup.fileHint':
+    'Save a copy you keep — to Drive, WhatsApp, anywhere. It survives uninstalling the app or changing phone. No account needed.',
+  'backup.save': 'Save my progress',
+  'backup.restore': 'Restore from file',
+  'backup.savedTitle': 'Saved',
+  'backup.savedBody': '{attempts} attempts saved as {name}. Keep it somewhere you will find it.',
+  'backup.restoredTitle': 'Restored',
+  'backup.restoredBody': '{attempts} attempts are back.',
+  'backup.failedTitle': 'Could not do that',
+  'backup.failedBody': 'Something went wrong. Nothing on your phone was changed.',
+  'backup.wouldLoseTitle': 'This backup is older than your phone',
+  'backup.wouldLoseBody':
+    'Your phone has {phoneAttempts} attempts; this file has {fileAttempts}. Restoring replaces what is on the phone, so the newer work would be lost.',
+  'backup.restoreAnyway': 'Restore anyway',
+
   'account.signInTitle': 'Sign in, or make an account',
   'account.username': 'Username',
   'account.password': 'Password',

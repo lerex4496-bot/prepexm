@@ -16,7 +16,13 @@
  *   4. subjects never seen at all      -> learn
  */
 
-import { currentExam, listPapers, openContentDb, type PaperRow } from '@/db/content';
+import {
+  currentExam,
+  currentPaperType,
+  listPapers,
+  openContentDb,
+  type PaperRow,
+} from '@/db/content';
 import { listAttempts } from '@/db/local';
 import { groupWeaknesses, loadMistakes, type MistakeDetail } from '@/db/mistakes';
 
@@ -199,15 +205,30 @@ export async function listSubjects(): Promise<SubjectRow[]> {
   const db = await openContentDb();
   // Joined to papers: subjects must never bleed across exams. Without this a
   // NEET student saw CTET pedagogy sections in the Learn tab.
-  const rows = await db.getAllAsync<{ subject: string | null; part: string | null; n: number }>(
-    `SELECT q.subject AS subject, q.part AS part, COUNT(*) AS n
+  // Also scoped to her paper: a Social Studies candidate has no reason to see
+  // "Mathematics and Science" or "Environmental Studies" as study areas — those
+  // belong to the other two CTET papers and she will never be asked them.
+  //
+  // Branched rather than using a nullable bind, for the reason documented at
+  // length in listPapers(): a null that reaches the driver as "null" silently
+  // returns nothing, and an empty Learn tab looks like missing content rather
+  // than a broken query.
+  const paperType = currentPaperType();
+  const base = `SELECT q.subject AS subject, q.part AS part, COUNT(*) AS n
        FROM questions q
        JOIN papers p ON p.id = q.paper_id
-      WHERE p.exam_code = ?
-      GROUP BY q.subject, q.part
-      ORDER BY q.part, q.subject`,
-    currentExam()
-  );
+      WHERE p.exam_code = ?`;
+  const tail = ` GROUP BY q.subject, q.part ORDER BY q.part, q.subject`;
+  const rows = paperType
+    ? await db.getAllAsync<{ subject: string | null; part: string | null; n: number }>(
+        `${base} AND p.paper_type = ?${tail}`,
+        currentExam(),
+        paperType
+      )
+    : await db.getAllAsync<{ subject: string | null; part: string | null; n: number }>(
+        `${base}${tail}`,
+        currentExam()
+      );
   return rows
     .filter((r) => r.subject || r.part)
     .map((r) => ({

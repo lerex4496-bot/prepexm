@@ -11,6 +11,7 @@ import { explanationFor, optionTextFor, stemFor } from '@/content/localise';
 import { ExplainOnDemand } from '@/content/ExplainOnDemand';
 import { LanguageToggle } from '@/content/LanguageToggle';
 import { Passage } from '@/content/Passage';
+import { primaryArchetype } from '@/coach/archetypes';
 
 const MISTAKE_TYPES: MistakeType[] = [
   'conceptual',
@@ -257,6 +258,44 @@ export default function ResultScreen() {
                     ◇ {q.topic_id}
                   </Text>
                 ) : null}
+
+                {/* Why this KIND of question catches people out.
+                    About a quarter of her Social Studies questions are
+                    structural — assertion-reason, statement I/II, match, the
+                    negative "which is NOT". On those the mark is usually lost
+                    to misreading what was asked rather than to not knowing the
+                    content, and that is teachable in a way facts are not.
+                    Shown only on a wrong answer, which is when it is worth
+                    reading. */}
+                {attempted && !isCorrect ? (() => {
+                  const arch = primaryArchetype(stemFor(q, contentLang).text);
+                  if (!arch) return null;
+                  return (
+                    <View
+                      style={{
+                        gap: 6,
+                        padding: spacing.md,
+                        borderRadius: radius.sm,
+                        backgroundColor: colors.accentSoft,
+                        borderLeftWidth: 3,
+                        borderLeftColor: colors.accent,
+                      }}
+                    >
+                      <Text variant="caption" color={colors.accent}>
+                        {arch.title.toUpperCase()}
+                      </Text>
+                      <Text variant="body">{arch.trap}</Text>
+                      <Text variant="caption" tone="muted" style={{ marginTop: 4 }}>
+                        {t('coach.method').toUpperCase()}
+                      </Text>
+                      {arch.method.map((step, i) => (
+                        <Text key={i} variant="caption" tone="secondary">
+                          {i + 1}. {step}
+                        </Text>
+                      ))}
+                    </View>
+                  );
+                })() : null}
 
                 {/* 5. how did YOU get it wrong — self-classified, one tap */}
                 {attempted && !isCorrect ? (

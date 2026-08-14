@@ -107,16 +107,27 @@ export function Chip({
 }
 
 /**
- * Provenance badge — the visual guarantee that official and AI content are
- * never confused.
+ * Provenance badge — the visual guarantee that official and generated content
+ * are never confused.
  *
- * OFFICIAL and AI MOCK deliberately differ in fill, border AND glyph, not just
- * colour, so the distinction survives greyscale, colour-blindness and a
- * screenshot sent to a friend.
+ * The three kinds differ in fill, border AND glyph, not just colour, so the
+ * distinction survives greyscale, colour-blindness and a screenshot sent to a
+ * friend.
+ *
+ *   official  a paper CBSE actually printed, sat as printed
+ *   mock      REAL questions from real papers, in a new order — not invented,
+ *             but not a paper that ever existed either
+ *   ai        generated content (none ships today)
+ *
+ * `mock` is deliberately its own kind rather than reusing `ai`. Every question
+ * in a mock came off a real CTET paper with the board's own answer key behind
+ * it; badging that as AI would understate it and teach her to distrust the one
+ * thing here that is fully sourced.
  */
-export function SourceBadge({ kind, label }: { kind: 'official' | 'ai'; label: string }) {
+export function SourceBadge({ kind, label }: { kind: 'official' | 'mock' | 'ai'; label: string }) {
   const { colors, radius, spacing } = useTheme();
   const isOfficial = kind === 'official';
+  const isMock = kind === 'mock';
 
   return (
     <View
@@ -129,14 +140,14 @@ export function SourceBadge({ kind, label }: { kind: 'official' | 'ai'; label: s
         paddingVertical: 3,
         borderRadius: radius.sm,
         borderWidth: 1.5,
-        borderStyle: isOfficial ? 'solid' : 'dashed',
-        borderColor: isOfficial ? colors.successText : colors.warningText,
-        backgroundColor: isOfficial ? colors.successSoft : colors.warningSoft,
+        borderStyle: isOfficial || isMock ? 'solid' : 'dashed',
+        borderColor: isOfficial ? colors.successText : isMock ? colors.accent : colors.warningText,
+        backgroundColor: isOfficial ? colors.successSoft : isMock ? colors.accentSoft : colors.warningSoft,
       }}
       accessibilityLabel={label}
     >
-      <Text variant="caption" color={isOfficial ? colors.successText : colors.warningText}>
-        {isOfficial ? '✓' : '◆'}
+      <Text variant="caption" color={isOfficial ? colors.successText : isMock ? colors.accent : colors.warningText}>
+        {isOfficial ? '✓' : isMock ? '⟳' : '◆'}
       </Text>
       <Text variant="caption" color={isOfficial ? colors.successText : colors.warningText}>
         {label}

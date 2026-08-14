@@ -7,8 +7,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useT } from '@/i18n/useT';
 import { useAccount } from '@/account/sync';
 import { LANGUAGE_LABEL, EXAM_LANGUAGES } from '@/i18n/strings';
-import { useProfile, type Lang, type ThemePref } from '@/store/profile';
-import { getMeta } from '@/db/content';
+import { PAPER_TYPES, useProfile, type Lang, type ThemePref } from '@/store/profile';
+import { contentCounts, getMeta } from '@/db/content';
 import { pingApi } from '@/tutor/client';
 
 /**
@@ -28,12 +28,14 @@ export default function Settings() {
   const reset = useProfile((s) => s.reset);
 
   const [meta, setMeta] = useState<Record<string, string>>({});
+  const [counts, setCounts] = useState<{papers:number;questions:number;visiblePapers:number;visibleQuestions:number} | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [apiDraft, setApiDraft] = useState(profile.apiBaseUrl ?? '');
   const [apiStatus, setApiStatus] = useState<string | null>(null);
 
   useEffect(() => {
     void getMeta().then(setMeta).catch(() => setMeta({}));
+    void contentCounts().then(setCounts).catch(() => setCounts(null));
   }, []);
 
   const exam = profile.exam ?? 'CTET';
@@ -110,6 +112,35 @@ export default function Settings() {
         <Text variant="caption" tone="muted" style={{ marginTop: -spacing.xs, marginBottom: spacing.sm }}>
           {t('settings.languageHint')}
         </Text>
+
+        {/* CTET only — NEET has no paper split, so the control would be an
+            empty choice there. */}
+        {exam === 'CTET' ? (
+          <>
+            <Row label={t('settings.paper')}>
+              <Chip
+                active={profile.paperType == null}
+                label={t('paper.all')}
+                onPress={() => set({ paperType: null })}
+              />
+              {PAPER_TYPES.map((p) => (
+                <Chip
+                  key={p}
+                  active={profile.paperType === p}
+                  label={t(`paper.${p}`)}
+                  onPress={() => set({ paperType: p })}
+                />
+              ))}
+            </Row>
+            <Text
+              variant="caption"
+              tone="muted"
+              style={{ marginTop: -spacing.xs, marginBottom: spacing.sm }}
+            >
+              {t('settings.paperHint')}
+            </Text>
+          </>
+        ) : null}
 
         <Row label={t('settings.account')}>
           <Pressable onPress={() => router.push('/account')} hitSlop={8}>
@@ -223,6 +254,20 @@ export default function Settings() {
             </Text>
             <Text variant="caption" tone="muted">
               {t('settings.bundleGate')}: {meta.gate ?? '—'}
+            </Text>
+            {/* Counted through the same filters the screens use. If the bundle
+                holds papers but "visible to you" is 0, the content is fine and
+                the filter is wrong — which is otherwise indistinguishable from
+                an empty app. */}
+            <Text variant="caption" tone="muted">
+              {t('settings.bundleHolds')}: {counts ? `${counts.papers} papers · ${counts.questions} questions` : '—'}
+            </Text>
+            <Text
+              variant="caption"
+              color={counts && counts.visiblePapers === 0 ? colors.error : undefined}
+              tone={counts && counts.visiblePapers === 0 ? undefined : 'muted'}
+            >
+              {t('settings.bundleVisible')}: {counts ? `${counts.visiblePapers} papers · ${counts.visibleQuestions} questions` : '—'}
             </Text>
             {meta.completeness === 'PARTIAL-DEV-BUILD' ? (
               <Text variant="caption" color={colors.warningText}>
