@@ -70,9 +70,55 @@ function count(s: string, re: RegExp): number {
   return (s.match(re) ?? []).length;
 }
 
+/**
+ * An explicit request for a language, e.g. "write all notes on Hindi".
+ *
+ * THE BUG THIS FIXES
+ * ------------------
+ * Everything below classifies the language a message was TYPED IN. That is the
+ * right default and it is not the whole question, because a student can ask in
+ * one language for an answer in another — and she did:
+ *
+ *     "No in 6 pages write all notes on Hindi"
+ *
+ * That sentence contains no Hindi, so it detected as English, the style became
+ * "Write in English", and the model obeyed by REFUSING: "I cannot write a
+ * 6-page document in Hindi, as I am restricted to English." An app built for a
+ * Hindi-medium student told her it does not do Hindi. An asked-for language has
+ * to outrank an inferred one.
+ *
+ * Matches the ways the request is actually phrased, in either script and in
+ * romanised form, and requires a preposition or imperative so that a question
+ * ABOUT a language ("who wrote the first Hindi novel") is not mistaken for a
+ * request to answer in it.
+ */
+const ASKED_FOR: { re: RegExp; lang: 'en' | 'hi' | 'gu' }[] = [
+  { re: /\b(?:in|into|to|on|me|mein|maa|ma)\s+hindi\b|hindi\s+(?:me|mein|m)\b|हिंदी\s*में|हिन्दी\s*में/i, lang: 'hi' },
+  { re: /\b(?:in|into|to|on|me|mein|maa|ma)\s+gujarati\b|gujarati\s+(?:ma|maa|me)\b|ગુજરાતી\s*માં/i, lang: 'gu' },
+  { re: /\b(?:in|into|to|on)\s+english\b|english\s+(?:me|mein|ma)\b|अंग्रेज़ी\s*में|અંગ્રેજી\s*માં/i, lang: 'en' },
+  { re: /\btranslate\b.*\b(?:hindi)\b|\bhindi\b.*\btranslate\b/i, lang: 'hi' },
+  { re: /\btranslate\b.*\b(?:gujarati)\b|\bgujarati\b.*\btranslate\b/i, lang: 'gu' },
+];
+
+export function requestedLanguage(text: string): 'en' | 'hi' | 'gu' | null {
+  const raw = (text ?? '').trim();
+  for (const { re, lang } of ASKED_FOR) {
+    if (re.test(raw)) return lang;
+  }
+  return null;
+}
+
 export function detectRegister(text: string): Register {
   const raw = (text ?? '').trim();
   if (!raw) return { lang: 'en', register: 'en', confidence: 0, evidence: 'empty message' };
+
+  // An explicit ask wins outright, and wins in FORMAL script: someone who
+  // writes "in Hindi" is asking for Hindi she can revise from, not for
+  // romanised chat.
+  const asked = requestedLanguage(raw);
+  if (asked) {
+    return { lang: asked, register: asked, confidence: 1, evidence: `asked for ${asked}` };
+  }
 
   const deva = count(raw, DEVANAGARI);
   const gujr = count(raw, GUJARATI);
@@ -133,6 +179,42 @@ export function detectRegister(text: string): Register {
     : { lang: 'hi', register: 'hinglish', confidence: Math.min(1, 0.5 + share), evidence: `${hi} Hindi markers` };
 }
 
+/**
+ * The register to actually answer in, given who she is.
+ *
+ * Falls back to the language of her EXAM CONTENT rather than to English. A
+ * Hindi-medium CTET candidate who types an English sentence — because she
+ * pasted a question out of a book, or because the app's own chrome is English —
+ * is still revising in Hindi, and answering her in English hands her notes she
+ * then has to translate herself the night before the paper.
+ *
+ * An explicit request and a message typed in her own language both already
+ * decided the answer before this is consulted; this only replaces the "she
+ * typed plain English and said nothing about language" default.
+ */
+export function effectiveRegister(text: string, contentLang: 'en' | 'hi' | 'gu'): Register {
+  const reg = detectRegister(text);
+  if (reg.register === 'en' && reg.evidence !== 'asked for en' && contentLang !== 'en') {
+    return {
+      lang: contentLang,
+      register: contentLang,
+      confidence: 0.8,
+      evidence: `no language cue; using her ${contentLang} study medium`,
+    };
+  }
+  return reg;
+}
+
+// Each of these is a preference about WHICH language to write in. None of them
+// is permission to decline. Stated as a bare constraint, "Write in English."
+// was read as a capability limit and produced "I cannot write in Hindi, as I am
+// restricted to English" — so every style now says what to do if she asks for
+// something else, and NEVER_REFUSE is appended to all of them.
+const NEVER_REFUSE =
+  ' This is a preference about which language to write in, not a restriction on your ability. ' +
+  'If she asks for another language, or for a longer answer, simply give it to her — never reply ' +
+  'that you are unable to write in a language.';
+
 const STYLE: Record<Register['register'], string> = {
   en: 'Write in English.',
   hi: 'Write in Hindi, in Devanagari script.',
@@ -155,5 +237,5 @@ const STYLE: Record<Register['register'], string> = {
 };
 
 export function styleFor(reg: Register): string {
-  return STYLE[reg.register] ?? STYLE.en;
+  return (STYLE[reg.register] ?? STYLE.en) + NEVER_REFUSE;
 }

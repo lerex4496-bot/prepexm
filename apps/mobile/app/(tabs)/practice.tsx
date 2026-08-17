@@ -6,7 +6,7 @@ import { Button, Card, EmptyState, Screen, SectionHeader, SourceBadge, Text } fr
 import { useTheme } from '@/theme/ThemeProvider';
 import { useT } from '@/i18n/useT';
 import { getMeta, listPapers, listTopics, type PaperRow } from '@/db/content';
-import { elapsedMs, findResumable, listAttempts, type AttemptRow } from '@/db/local';
+import { elapsedMs, listAttempts, listResumable, type AttemptRow } from '@/db/local';
 import { DRILL_SIZE, SECTIONS, isMockId, mockIdFor, newMockSeed } from '@/exam/mockBuilder';
 import { TOPIC_PRIORITY, TOTAL_SITTINGS } from '@/exam/topicPriority';
 
@@ -42,18 +42,22 @@ export default function Practice() {
       let alive = true;
       (async () => {
         try {
-          const [ps, m, as, ts] = await Promise.all([
+          // All five in ONE parallel batch. The resumable lookup used to be a
+          // sequential loop of one query per paper AFTER this batch resolved,
+          // which is what made the practice list take so long to appear — and,
+          // because the list only renders once this finishes, made it look
+          // like the papers were missing rather than late.
+          //
+          // Keep the row, not a boolean: the card shows how much time she has
+          // already spent, which is the thing that decides whether she has
+          // enough left right now to be worth resuming.
+          const [ps, m, as, ts, res] = await Promise.all([
             listPapers(),
             getMeta(),
             listAttempts(),
             listTopics().catch(() => []),
+            listResumable().catch(() => ({})),
           ]);
-          if (!alive) return;
-          // Keep the row, not a boolean: the card shows how much time she has
-          // already spent, which is the thing that decides whether she has
-          // enough left right now to be worth resuming.
-          const res: Record<string, AttemptRow | null> = {};
-          for (const p of ps) res[p.id] = await findResumable(p.id);
           if (!alive) return;
           setPapers(ps);
           setMeta(m);
@@ -87,10 +91,17 @@ export default function Practice() {
       params: { paperId: mockIdFor(newMockSeed(), mode, param) },
     });
 
-  // How many questions exist for a section, so an empty one is not offered.
+  // Whether a section has anything behind it, so an empty one is not offered.
+  //
+  // Gated on the TOPIC TAGS rather than on the paper count. Both answer "is
+  // there content?", but the paper count is also the thing the loader fills in
+  // last, so while it was still zero every section card silently vanished and
+  // the Mocks tab showed two entries instead of six. Loading is fast now, but
+  // a card that disappears during a refresh is the wrong behaviour regardless.
   const sectionCount = (code: string) => {
     const subjects = SECTIONS[code]?.subjects ?? [];
-    return papers.length && subjects.length ? 1 : 0;
+    if (!subjects.length) return 0;
+    return Object.keys(topics).length || papers.length ? 1 : 0;
   };
 
   const bestFor = (paperId: string) => {

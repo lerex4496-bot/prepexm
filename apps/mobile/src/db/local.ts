@@ -169,6 +169,36 @@ export async function createAttempt(paperId: string): Promise<string> {
   return id;
 }
 
+/**
+ * Every unsubmitted attempt, newest first, keyed by paper.
+ *
+ * WHY THIS EXISTS
+ * ---------------
+ * Practice needs "is there something to resume?" for each paper in its list,
+ * and did it by calling findResumable() in a loop — one awaited round trip per
+ * paper, run SEQUENTIALLY, before the screen was allowed to render anything.
+ *
+ * With seventeen papers that is seventeen serial queries standing between her
+ * and the practice list. The visible result was not a slow list: it was an
+ * EMPTY one, because the list is gated on the load finishing, so the Papers
+ * tab showed nothing at all while it ran, and the Mocks tab lost every
+ * section card — those are gated on the paper count, which was still zero.
+ * "The PYQ papers aren't there and there are only two mock tests" was this,
+ * not missing content.
+ *
+ * One query returns the lot.
+ */
+export async function listResumable(): Promise<Record<string, AttemptRow>> {
+  const d = await openLocalDb();
+  const rows = await d.getAllAsync<AttemptRow>(
+    'SELECT * FROM attempts WHERE submitted_at IS NULL ORDER BY started_at DESC'
+  );
+  const out: Record<string, AttemptRow> = {};
+  // Newest first, so the first row seen for a paper is the one to resume.
+  for (const r of rows) if (!(r.paper_id in out)) out[r.paper_id] = r;
+  return out;
+}
+
 /** Any attempt for this paper that was started but never submitted. */
 export async function findResumable(paperId: string): Promise<AttemptRow | null> {
   const d = await openLocalDb();

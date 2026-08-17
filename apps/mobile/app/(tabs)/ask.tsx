@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 
 import { Card, Screen, Text } from '@/ui';
+import { TAB_BAR_HEIGHT } from '@/ui/tabBar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useT } from '@/i18n/useT';
 import { TutorUnavailable, type Citation } from '@/tutor/client';
@@ -53,6 +55,7 @@ import {
  */
 export default function AskScreen() {
   const { colors, spacing, radius } = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useT();
 
   // Persisted, not local state. See src/tutor/chatStore.ts: the transcript
@@ -325,9 +328,24 @@ export default function AskScreen() {
 
   return (
     <Screen scroll={false}>
+      {/* WHY 'padding' ON ANDROID TOO, AND WHY AN OFFSET
+          ------------------------------------------------
+          This was `behavior={undefined}` on Android, on the usual reasoning
+          that the manifest's android:windowSoftInputMode="adjustResize" moves
+          the layout for us. It does not any more: Expo SDK 57 ships
+          edge-to-edge, and an edge-to-edge window does NOT resize for the
+          keyboard. So the keyboard drew straight over the composer — she could
+          type, and the send button was underneath the keys, with no way to
+          reach it except Back, which closes the screen.
+
+          The offset is the tab bar. This composer sits inside a tab screen, so
+          the keyboard's top edge is that much higher than KeyboardAvoidingView
+          would otherwise assume, and without it the input still sits half
+          hidden. */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
+        keyboardVerticalOffset={Platform.OS === 'android' ? TAB_BAR_HEIGHT + insets.bottom : 0}
       >
         <View
           style={{

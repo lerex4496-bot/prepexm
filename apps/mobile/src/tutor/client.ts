@@ -14,6 +14,7 @@
 
 import { useProfile } from '@/store/profile';
 import { DirectError, askDirect, directAvailable } from '@/ai/direct';
+import { styleFor } from '@/ai/register';
 
 export interface Citation {
   n: number;
@@ -80,12 +81,16 @@ export async function askTutor(params: {
   // The UI shows that difference — an uncited answer must not look like a cited
   // one, because the whole point of the citations is that she can check them.
   if (!baseUrl() && directAvailable()) {
-    const style =
-      params.lang === 'hi'
-        ? 'Write in Hindi, in Devanagari script.'
-        : params.lang === 'gu'
-          ? 'Write in Gujarati, in Gujarati script.'
-          : 'Write in English.';
+    // Via styleFor rather than a second copy of the ladder, so this path also
+    // carries the "a language preference is not a refusal" clause. The two
+    // copies had already drifted: the Ask screen was fixed and this one, which
+    // is what she taps from inside a question, would still have declined.
+    const style = styleFor({
+      lang: params.lang,
+      register: params.lang,
+      confidence: 1,
+      evidence: 'caller specified',
+    });
     try {
       const r = await askDirect({ message: params.question, style });
       return {

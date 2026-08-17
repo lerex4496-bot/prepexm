@@ -21,7 +21,7 @@
 import { useProfile } from '@/store/profile';
 import { TutorUnavailable, type Citation } from './client';
 import { askDirect, directAvailable } from '@/ai/direct';
-import { detectRegister, styleFor } from '@/ai/register';
+import { effectiveRegister, styleFor } from '@/ai/register';
 
 export type ChatRole = 'user' | 'assistant';
 
@@ -82,7 +82,8 @@ export async function sendChat(params: {
   // no citations and no "your books don't cover this" refusal. `grounded:false`
   // carries that to the UI rather than letting it pass unnoticed.
   if (!base && directAvailable()) {
-    const reg = detectRegister(params.message);
+    // Her study medium is the fallback, NOT English — see effectiveRegister.
+    const reg = effectiveRegister(params.message, useProfile.getState().profile.contentLang ?? 'en');
     const r = await askDirect({
       message: params.message,
       style: styleFor(reg),
