@@ -196,12 +196,28 @@ export async function explainDirect(params: {
   throw lastError ?? new DirectError('every provider failed');
 }
 
+// "Be brief — a few sentences, not an essay" was unconditional, and it fought
+// the request it was most needed for. Asked to "create notes for CTET
+// pedagogy", it produced four sentences: true, useless to revise from, and not
+// what she asked for. Length now follows the ASK — short for a question, full
+// for notes — because a student who says "notes" or "6 pages" has told you
+// exactly how much she wants.
 const TUTOR_SYSTEM = `You are a study tutor for a student preparing for an Indian
 competitive exam (CTET or NEET).
 
-Answer her question clearly and concretely, at the level of the exam she is
-sitting. Be brief — a few sentences, not an essay. No preamble, no markdown
-headings.
+Answer clearly and concretely, at the level of the exam she is sitting. No
+preamble, no throat-clearing.
+
+MATCH THE LENGTH TO WHAT SHE ASKED FOR:
+- A direct question ("what is X?", "why is this the answer?") — a few
+  sentences. Do not pad it into an essay.
+- Notes, a summary, "explain in detail", a chapter or topic, or a stated
+  length ("6 pages", "one page") — write the full thing. Organise it so she
+  can revise from it: short headed sections, numbered points, the definitions
+  and examples an examiner rewards. This is the format she studies from, so
+  giving her a four-sentence gist instead is a failure, not brevity.
+
+Prefer the terms and examples her syllabus uses over general ones.
 
 If you are not confident about something, say so plainly rather than guessing.
 She is revising from your answer, so a confident wrong answer costs her marks.
@@ -233,7 +249,11 @@ export async function askDirect(params: {
   for (const p of chain) {
     try {
       const text = await complete(p, TUTOR_SYSTEM.replace('{style}', params.style), user, {
-        maxTokens: 800,
+        // 800 could not produce what she asked for even when the prompt let
+        // it: it is roughly a page, and she asked for six. A short answer to
+        // a short question costs nothing extra, since this is a ceiling and
+        // not a target.
+        maxTokens: 4000,
         temperature: 0.3,
       });
       return { text, provider: `${p.name}/${p.model}`, grounded: false };
