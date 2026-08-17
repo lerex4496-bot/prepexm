@@ -159,6 +159,44 @@ def read_token(token: str) -> int | None:
     return int(data["sub"])
 
 
+def make_subject_token(subject: str) -> str:
+    """Sign a token whose subject is a STRING rather than a row id.
+
+    Identical signing to make_token — same secret, same TTL, same format — but
+    the Mongo-backed store keys accounts by username, and there is no integer
+    id to put in `sub`. Sharing the signing code rather than copying it is the
+    point: two implementations of token verification is two chances to get the
+    HMAC comparison wrong, and only one of them would be tested.
+
+    The int-based pair above is left exactly as it was so the Postgres path is
+    unaffected.
+    """
+    payload = base64.urlsafe_b64encode(
+        json.dumps({"sub": subject, "exp": int(time.time()) + TOKEN_TTL_S}).encode()
+    ).decode()
+    sig = hmac.new(_server_secret(), payload.encode(), hashlib.sha256).hexdigest()[:32]
+    return f"{payload}.{sig}"
+
+
+def read_subject_token(token: str) -> str | None:
+    """Return the token's subject, or None if it is forged or expired."""
+    try:
+        payload, sig = token.split(".", 1)
+    except ValueError:
+        return None
+    expected = hmac.new(_server_secret(), payload.encode(), hashlib.sha256).hexdigest()[:32]
+    if not hmac.compare_digest(sig, expected):
+        return None
+    try:
+        data = json.loads(base64.urlsafe_b64decode(payload))
+    except (ValueError, TypeError):
+        return None
+    if int(data.get("exp", 0)) < time.time():
+        return None
+    sub = data.get("sub")
+    return str(sub) if sub is not None else None
+
+
 def normalise_username(username: str) -> str:
     return (username or "").strip().lower()
 
