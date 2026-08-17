@@ -42,7 +42,30 @@ import sys
 from pathlib import Path
 
 HOME = Path.home()
+
+# TWO SOURCES, BECAUSE ANTIGRAVITY KEEPS TWO
+# ------------------------------------------
+# `repos` is the checkout tree: 41 upstream repositories, each with its skills
+# nested wherever that project happens to put them. Provenance is legible here
+# — you can see that a skill came from expo_skills rather than an aggregator —
+# which is what TRUSTED below is for.
+#
+# `config/skills` is the flat installed library, and it is much larger: 6,059
+# skills, one directory each. No repo attribution survives the flattening, so a
+# skill found only here is of unknown origin and has to be read before use.
 SOURCE = HOME / ".gemini" / "antigravity-ide" / "scratch" / "skills_manager" / "repos"
+LIBRARY = HOME / ".gemini" / "config" / "skills"
+
+# WHY THIS TOOL WILL NOT INSTALL THE WHOLE LIBRARY
+# -----------------------------------------------
+# Measured, not assumed: the name and description of all 6,059 skills come to
+# 1,884,172 characters — roughly 471,000 tokens. Every installed skill's
+# frontmatter is loaded at session start, so installing the library would cost
+# about 2.4x the entire context window before a single file of the project was
+# read. The agent would not be more capable; it would be unable to start.
+#
+# Ten well-chosen skills cost a few hundred tokens and are actually consulted.
+LIBRARY_SIZE_NOTE = "6,059 skills ~= 471,000 tokens of frontmatter; install what you need"
 
 # Each tool reads its own directory. Cursor/Windsurf use rules files rather
 # than SKILL.md and so cannot be targeted here.
@@ -70,19 +93,33 @@ TRUSTED = {
 }
 
 
-def find_skills(repo_filter: str | None = None) -> list[tuple[str, str, Path]]:
-    """Return (repo, skill_name, skill_dir) for every SKILL.md found."""
+def find_skills(repo_filter: str | None = None, include_library: bool = True) -> list[tuple[str, str, Path]]:
+    """Return (repo, skill_name, skill_dir) for every SKILL.md found.
+
+    The flat library is searched too, under the pseudo-repo name "library", and
+    only for skills the repo tree does not already provide — a skill with real
+    provenance is always preferable to the same skill with none.
+    """
     out: list[tuple[str, str, Path]] = []
-    if not SOURCE.exists():
-        return out
-    repos = sorted(p for p in SOURCE.iterdir() if p.is_dir())
-    for repo in repos:
-        if repo_filter and repo_filter.lower() not in repo.name.lower():
-            continue
-        for skill_md in repo.rglob("SKILL.md"):
-            if "node_modules" in skill_md.parts:
+    seen: set[str] = set()
+
+    if SOURCE.exists():
+        repos = sorted(p for p in SOURCE.iterdir() if p.is_dir())
+        for repo in repos:
+            if repo_filter and repo_filter.lower() not in repo.name.lower():
                 continue
-            out.append((repo.name, skill_md.parent.name, skill_md.parent))
+            for skill_md in repo.rglob("SKILL.md"):
+                if "node_modules" in skill_md.parts:
+                    continue
+                out.append((repo.name, skill_md.parent.name, skill_md.parent))
+                seen.add(skill_md.parent.name.lower())
+
+    if include_library and LIBRARY.exists():
+        if not repo_filter or repo_filter.lower() in "library":
+            for d in sorted(LIBRARY.iterdir()):
+                if not (d / "SKILL.md").is_file() or d.name.lower() in seen:
+                    continue
+                out.append(("library", d.name, d))
     return out
 
 
