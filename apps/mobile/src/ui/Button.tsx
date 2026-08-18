@@ -1,5 +1,12 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+
+import { usePressScale } from './press';
+
+// Pressable itself is animated so the spring drives the button's own transform
+// rather than a wrapper view, which would fight the fullWidth stretch.
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '@/theme/ThemeProvider';
@@ -38,6 +45,8 @@ export function Button({
 }: ButtonProps) {
   const { colors, radius, reducedMotion } = useTheme();
   const inactive = disabled || loading;
+  const { scale, onPressIn, onPressOut } = usePressScale(!inactive);
+  const animated = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   const surface: Record<ButtonVariant, ViewStyle> = {
     primary: { backgroundColor: colors.primary },
@@ -60,14 +69,16 @@ export function Button({
   };
 
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={handle}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       disabled={inactive}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: inactive, busy: loading }}
-      style={({ pressed }) => [
+      style={({ pressed }: { pressed: boolean }) => [
         styles.base,
         surface[variant],
         {
@@ -79,6 +90,7 @@ export function Button({
           alignSelf: fullWidth ? 'stretch' : 'flex-start',
         },
         style,
+        animated,
       ]}
     >
       {loading ? (
@@ -95,7 +107,7 @@ export function Button({
           </Text>
         </View>
       )}
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 

@@ -1,5 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+
+import { usePressScale } from './press';
 
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from './Text';
@@ -50,14 +53,38 @@ export function Card({
 
   if (!onPress) return body;
 
+  return <PressableCard onPress={onPress} label={accessibilityLabel}>{body}</PressableCard>;
+}
+
+/**
+ * The press wrapper, split out because a hook cannot be called conditionally
+ * and Card returns early when it has no onPress.
+ *
+ * The scale is a SPRING on press-down rather than a style swapped in on the
+ * `pressed` flag — see ./press.ts for why 0.97 and why critically damped. The
+ * old value was 0.995, which on a full-width card is about two pixels: real
+ * enough to exist in the code and invisible on the phone.
+ */
+function PressableCard({
+  children,
+  onPress,
+  label,
+}: {
+  children: React.ReactNode;
+  onPress: () => void;
+  label?: string;
+}) {
+  const { scale, onPressIn, onPressOut } = usePressScale();
+  const animated = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   return (
     <Pressable
       onPress={onPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.995 : 1 }] })}
+      accessibilityLabel={label}
     >
-      {body}
+      <Animated.View style={animated}>{children}</Animated.View>
     </Pressable>
   );
 }
