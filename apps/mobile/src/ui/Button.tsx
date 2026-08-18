@@ -78,7 +78,20 @@ export function Button({
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: inactive, busy: loading }}
-      style={({ pressed }: { pressed: boolean }) => [
+      // ARRAY, NEVER A FUNCTION — this shipped broken and made every button in
+      // the app invisible.
+      //
+      // An animated component cannot resolve a `({ pressed }) => [...]` style.
+      // Reanimated does not warn; it drops the WHOLE array, so styles.base, the
+      // variant surface, minHeight and borderRadius all vanish and the button
+      // renders with no background and no size. It is still mounted and still
+      // tappable, which is what made it so hard to see in a screenshot: the
+      // onboarding screen looked like it simply had no Continue button.
+      //
+      // The `pressed` flag was only feeding an opacity dip anyway, and the
+      // spring scale below is the feedback now, so nothing is lost by dropping
+      // the function form entirely.
+      style={[
         styles.base,
         surface[variant],
         {
@@ -86,7 +99,7 @@ export function Button({
           // narrow screens and a fixed height would clip the descenders.
           minHeight: HEIGHTS[size],
           borderRadius: radius.md,
-          opacity: inactive ? 0.45 : pressed ? 0.88 : 1,
+          opacity: inactive ? 0.45 : 1,
           alignSelf: fullWidth ? 'stretch' : 'flex-start',
         },
         style,

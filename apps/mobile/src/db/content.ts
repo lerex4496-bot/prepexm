@@ -44,6 +44,35 @@ export class ContentUnavailable extends Error {}
 
 let db: SQLite.SQLiteDatabase | null = null;
 
+/**
+ * The open that is currently in flight, so concurrent callers share one.
+ *
+ * THE BUG THIS FIXES
+ * ------------------
+ * `db` alone is not enough of a guard. It is only assigned at the very END of
+ * openContentDb, after the unpack and both verification queries — so every
+ * caller that arrives before then sees null and starts its own unpack.
+ *
+ * On a fresh launch that is exactly what happens: Today, Learn and Practice
+ * mount together and each call in. The unpack path deletes the destination
+ * file and closes handles, so one caller pulls the file out from under
+ * another, and the next statement gets a null native handle. On the phone that
+ * surfaced as:
+ *
+ *     Could not load your plan
+ *     Call to function 'NativeDatabase.prepareAsync' has been rejected.
+ *     -> Caused by: java.lang.NullPointerException
+ *
+ * with Practice showing "No papers yet" and Learn blank — all three symptoms
+ * of one race, and none of them of missing content. The bank was intact the
+ * whole time.
+ *
+ * It hid for a long time because the window is only as wide as the copy: the
+ * database grew from 3.0 MB to 3.3 MB when the Hindi was backfilled, and a
+ * cleared install meant the copy ran fresh rather than being skipped.
+ */
+let opening: Promise<SQLite.SQLiteDatabase> | null = null;
+
 /** Bytes currently on disk, or 0 if the path does not exist. */
 async function sizeOf(path: string): Promise<number> {
   const info = await FileSystem.getInfoAsync(path);
@@ -141,7 +170,23 @@ export async function ensureSQLiteDir(): Promise<void> {
 
 export async function openContentDb(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
+  // Everyone who arrives mid-unpack waits on the same work rather than
+  // starting a competing one. See `opening` above for what that race did.
+  if (opening) return opening;
 
+  opening = (async () => openContentDbUncached())();
+  try {
+    db = await opening;
+    return db;
+  } finally {
+    // Cleared either way: on success `db` short-circuits every later call, and
+    // on failure the next call must be free to try again rather than being
+    // handed a rejected promise for the life of the process.
+    opening = null;
+  }
+}
+
+async function openContentDbUncached(): Promise<SQLite.SQLiteDatabase> {
   const dir = `${FileSystem.documentDirectory}SQLite`;
   const dest = `${dir}/${DB_NAME}`;
 
@@ -211,8 +256,9 @@ export async function openContentDb(): Promise<SQLite.SQLiteDatabase> {
     `SELECT (SELECT COUNT(*) FROM papers) AS p, (SELECT COUNT(*) FROM questions) AS q`
   );
 
-  db = opened;
-  return db;
+  // Memoised by the caller, not here — this function is now the uncached body
+  // and openContentDb owns both `db` and the in-flight promise.
+  return opened;
 }
 
 export interface PaperRow {
