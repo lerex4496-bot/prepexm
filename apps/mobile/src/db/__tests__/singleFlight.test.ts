@@ -87,4 +87,45 @@ describe('single-flight open', () => {
     await expect(open()).resolves.toBe('handle');
     expect(attempts).toBe(2);
   });
+
+  it('never publishes a handle before its schema is ready', async () => {
+    // The local database assigned `db` on the line that OPENED it, then ran
+    // execAsync(SCHEMA) and migrate() afterwards. For that whole window a
+    // concurrent caller saw a non-null handle and queried tables that did not
+    // exist yet. Today, Learn and Practice all mount together, so the window
+    // was hit on essentially every cold start.
+    const events: string[] = [];
+    let handle: string | null = null;
+    let opening: Promise<string> | null = null;
+
+    async function open(): Promise<string> {
+      if (handle) return handle;
+      if (opening) return opening;
+      opening = (async () => {
+        const h = 'handle';
+        events.push('opened');
+        await new Promise((r) => setTimeout(r, 10));
+        events.push('schema');
+        await new Promise((r) => setTimeout(r, 10));
+        events.push('migrated');
+        return h;
+      })();
+      try {
+        handle = await opening;
+        return handle;
+      } finally {
+        opening = null;
+      }
+    }
+
+    const users = await Promise.all([open(), open(), open()]);
+    users.forEach((h) => events.push(`used:${h}`));
+
+    // Every use must come after the migration, never between open and schema.
+    const migrated = events.indexOf('migrated');
+    events.forEach((e, i) => {
+      if (e.startsWith('used:')) expect(i).toBeGreaterThan(migrated);
+    });
+    expect(events.filter((e) => e === 'opened')).toHaveLength(1);
+  });
 });

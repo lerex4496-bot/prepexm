@@ -20,6 +20,38 @@ const DB_NAME = 'studymate-local.db';
 
 let db: SQLite.SQLiteDatabase | null = null;
 
+/**
+ * The open in flight, so concurrent callers share one — and, more importantly,
+ * so nobody is handed a handle before its schema exists.
+ *
+ * THE BUG THIS FIXES, WHICH WAS THE WORSE OF THE TWO
+ * --------------------------------------------------
+ * This function used to assign `db` on the line that OPENED the database:
+ *
+ *     db = await SQLite.openDatabaseAsync(DB_NAME);
+ *     await db.execAsync(SCHEMA);      // tables created here
+ *     await migrate(db);               // and altered here
+ *
+ * So for the whole duration of the schema and migration work, `db` was already
+ * non-null. Any other caller arriving in that window hit `if (db) return db`
+ * and went straight to querying a database whose tables did not exist yet, and
+ * whose migrations were still running on the same connection underneath it.
+ *
+ * Today, Learn and Practice all mount together and all read this database, so
+ * that window is hit on essentially every cold start. It is the same race that
+ * was fixed in content.ts, and fixing only that one left this half live — which
+ * is why the phone still showed
+ *
+ *     Could not load your plan
+ *     NativeDatabase.prepareAsync ... java.lang.NullPointerException
+ *
+ * after a language toggle re-ran the queries.
+ *
+ * `db` is now assigned only after the schema and migrations have completed, so
+ * a handle is never visible until it is actually usable.
+ */
+let opening: Promise<SQLite.SQLiteDatabase> | null = null;
+
 const SCHEMA = `
 PRAGMA journal_mode = WAL;
 
@@ -107,15 +139,28 @@ async function migrate(d: SQLite.SQLiteDatabase): Promise<void> {
 
 export async function openLocalDb(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
-  // Both databases share files/SQLite, and that path was found existing as a
-  // FILE on a real device — which made every open here fail permanently with
-  // "Path already points to a non-normal file". Whichever database opens first
-  // has to repair the folder, so this runs on both paths.
-  await ensureSQLiteDir();
-  db = await SQLite.openDatabaseAsync(DB_NAME);
-  await db.execAsync(SCHEMA);
-  await migrate(db);
-  return db;
+  if (opening) return opening;
+
+  opening = (async () => {
+    // Both databases share files/SQLite, and that path was found existing as a
+    // FILE on a real device — which made every open here fail permanently with
+    // "Path already points to a non-normal file". Whichever database opens first
+    // has to repair the folder, so this runs on both paths.
+    await ensureSQLiteDir();
+    const opened = await SQLite.openDatabaseAsync(DB_NAME);
+    await opened.execAsync(SCHEMA);
+    await migrate(opened);
+    // Returned — and only then memoised by the caller. See below for why the
+    // order matters.
+    return opened;
+  })();
+
+  try {
+    db = await opening;
+    return db;
+  } finally {
+    opening = null;
+  }
 }
 
 export type MistakeType =

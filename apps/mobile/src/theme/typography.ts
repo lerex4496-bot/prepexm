@@ -82,17 +82,27 @@ export interface TypeToken {
   tabular?: boolean;
 }
 
+// TRACKING IS SIZE-SPECIFIC, WHICH MEANS EVERY TOKEN NEEDS ITS OWN VALUE.
+//
+// Letterforms read as too far apart when they grow and too tight when they
+// shrink, so a single letter-spacing across a scale is wrong at one end or the
+// other. Large display type takes negative tracking, body sits at zero, and
+// small text takes a little positive to stay legible. Values are in POINTS
+// here (React Native has no em unit), worked out at roughly -0.02em for the
+// display sizes down to +0.01em for captions.
 export const type = {
-  display: { size: 34, indicSize: 30, weight: 'extrabold', lh: 1.2, indicLh: 1.45, tracking: -0.5 },
-  h1: { size: 26, indicSize: 24, weight: 'bold', lh: 1.25, indicLh: 1.5, tracking: -0.3 },
-  h2: { size: 20, weight: 'bold', lh: 1.3, indicLh: 1.55 },
-  h3: { size: 17, weight: 'semibold', lh: 1.35, indicLh: 1.6 },
+  display: { size: 34, indicSize: 30, weight: 'extrabold', lh: 1.2, indicLh: 1.45, tracking: -0.7 },
+  h1: { size: 26, indicSize: 24, weight: 'bold', lh: 1.25, indicLh: 1.5, tracking: -0.5 },
+  h2: { size: 20, weight: 'bold', lh: 1.3, indicLh: 1.55, tracking: -0.3 },
+  h3: { size: 17, weight: 'semibold', lh: 1.35, indicLh: 1.6, tracking: -0.2 },
   body: { size: 16, weight: 'regular', lh: 1.5, indicLh: 1.75 },
   bodyStrong: { size: 16, weight: 'semibold', lh: 1.5, indicLh: 1.75 },
+  // The exam text. Left at zero deliberately: she reads these for ninety
+  // minutes and anything clever here is a risk to legibility, not a gain.
   question: { size: 17, weight: 'medium', lh: 1.55, indicLh: 1.8 },
   option: { size: 16, weight: 'regular', lh: 1.5, indicLh: 1.75 },
-  caption: { size: 13, weight: 'regular', lh: 1.4, indicLh: 1.65 },
-  button: { size: 15, weight: 'semibold', lh: 1.2, indicLh: 1.35 },
+  caption: { size: 13, weight: 'regular', lh: 1.4, indicLh: 1.65, tracking: 0.15 },
+  button: { size: 15, weight: 'semibold', lh: 1.2, indicLh: 1.35, tracking: 0.2 },
   /**
    * Exam numerics — question numbers, marks, the timer. Always Latin digits
    * (that is what the real paper uses) and always tabular so the timer does
@@ -113,7 +123,17 @@ export function resolveType(variant: TypeVariant, script: Script) {
     fontSize: size,
     lineHeight: Math.round(size * multiplier),
     weight: t.weight,
-    letterSpacing: t.tracking,
+    // TRACKING IS LATIN-ONLY, AND THIS IS NOT A STYLE PREFERENCE.
+    //
+    // Devanagari and Gujarati build words from clusters: a consonant carries
+    // matras above, below and beside it, and a conjunct is drawn as one shape.
+    // Letter-spacing is applied BETWEEN glyphs, so positive tracking pushes a
+    // matra away from the consonant it belongs to and negative tracking drives
+    // it into its neighbour. Either way the word stops being readable, and it
+    // does so most visibly at display sizes — the headings on every screen.
+    //
+    // Both students read in Indic scripts, so the correct value there is none.
+    letterSpacing: isIndic ? undefined : t.tracking,
     tabular: t.tabular ?? false,
   };
 }
