@@ -35,6 +35,23 @@
  */
 
 import type { LoadedQuestion, PaperRow } from '@/db/content';
+
+/**
+ * The only fields assembly actually reads.
+ *
+ * Generic over the row type so this works on the LIGHT pool (seven columns,
+ * no options) as well as on fully loaded questions. Assembling a mock used to
+ * drag the whole pool across the bridge — 899 questions with both stems,
+ * passages and explanations, plus 3,596 option rows — to pick 150 of them,
+ * which is what put "Loading paper…" on screen for seconds at a time.
+ */
+export interface Selectable {
+  id: string;
+  subject: string | null;
+  topic_id: string | null;
+  stem_en: string;
+  stem_hi: string | null;
+}
 import { rankOf } from './topicPriority';
 
 /** The prefix that marks a synthetic paper id. */
@@ -176,8 +193,8 @@ function shuffle<T>(items: readonly T[], next: () => number): T[] {
   return out;
 }
 
-export interface MockPlan {
-  questions: LoadedQuestion[];
+export interface MockPlan<Q extends Selectable = LoadedQuestion> {
+  questions: Q[];
   /** Sections that could not be filled, so the UI can say so rather than hide it. */
   short: { subject: string; wanted: number; got: number }[];
 }
@@ -188,13 +205,13 @@ export interface MockPlan {
  * `pool` is every approved question available for her paper type. Selection is
  * per section and without replacement, so no question can appear twice.
  */
-export function buildMock(
+export function buildMock<Q extends Selectable>(
   seedOrSpec: string | MockSpec,
   paperType: string,
-  pool: LoadedQuestion[],
+  pool: readonly Q[],
   /** Ids she has answered wrongly — required only for the 'weak' mode. */
   weakIds: readonly string[] = []
-): MockPlan {
+): MockPlan<Q> {
   const spec: MockSpec =
     typeof seedOrSpec === 'string' ? { mode: 'full', param: '-', seed: seedOrSpec } : seedOrSpec;
 
@@ -214,7 +231,7 @@ export function buildMock(
   // both present the same item exists twice. See dedupe().
   const unique = dedupe(pool);
 
-  const bySubject = new Map<string, LoadedQuestion[]>();
+  const bySubject = new Map<string, Q[]>();
   for (const q of unique) {
     const key = q.subject ?? '';
     const list = bySubject.get(key);
@@ -222,7 +239,7 @@ export function buildMock(
     else bySubject.set(key, [q]);
   }
 
-  const picked: LoadedQuestion[] = [];
+  const picked: Q[] = [];
   const short: MockPlan['short'] = [];
 
   for (const [subject, wanted] of blueprint) {
@@ -241,7 +258,9 @@ export function buildMock(
   // Renumber 1..n so the palette, "Q 12 / 150" and the answer sheet all read
   // like a real paper rather than showing the numbers these questions had on
   // whichever paper they came from.
-  const questions = picked.map((q, i) => ({ ...q, number: i + 1 }));
+  // `number` is overwritten, not added, so the shape is unchanged — but TS
+  // cannot see that a spread of Q is still Q, hence the assertion.
+  const questions = picked.map((q, i) => ({ ...q, number: i + 1 }) as unknown as Q);
   return { questions, short };
 }
 
@@ -253,15 +272,15 @@ export function buildMock(
  * a drill is resumable and reopenable exactly like a mock. Only the pool and the
  * size differ.
  */
-function buildDrill(
+function buildDrill<Q extends Selectable>(
   spec: MockSpec,
-  pool: LoadedQuestion[],
+  pool: readonly Q[],
   weakIds: readonly string[]
-): MockPlan {
+): MockPlan<Q> {
   const next = rng(hashSeed(`${spec.mode}:${spec.param}:${spec.seed}`));
   const unique = dedupe(pool);
 
-  let candidates: LoadedQuestion[] = unique;
+  let candidates: Q[] = unique;
   let wanted = DRILL_SIZE;
   let label = spec.param;
 
@@ -297,9 +316,9 @@ function buildDrill(
 }
 
 /** Collapse questions that are the same question under a different id. */
-function dedupe(pool: LoadedQuestion[]): LoadedQuestion[] {
+function dedupe<Q extends Selectable>(pool: readonly Q[]): Q[] {
   const seen = new Set<string>();
-  const out: LoadedQuestion[] = [];
+  const out: Q[] = [];
   for (const q of pool) {
     const fingerprint = (q.stem_en || q.stem_hi || '').toLowerCase().replace(/\s+/g, ' ').trim();
     if (fingerprint && seen.has(fingerprint)) continue;

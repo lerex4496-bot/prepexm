@@ -426,6 +426,83 @@ export async function listPapers(
  * Deliberately NOT scoped to a single paper: a mock mixes questions from every
  * sitting we hold, which is the whole point of it.
  */
+/**
+ * The columns a mock needs in order to CHOOSE its questions — and nothing else.
+ *
+ * WHY THIS EXISTS: "Loading paper…" sat on screen for many seconds.
+ *
+ * Nothing is downloaded when a mock is built; the bank is inside the app. The
+ * cost was the React Native bridge. Assembling one 150-question mock pulled the
+ * ENTIRE pool for the paper type across it — 899 questions with their stems in
+ * two languages, passages, extractions and explanations, plus all 3,596 option
+ * rows — and then used about a sixth of them.
+ *
+ * buildMock only ever reads id, subject, topic_id and a stem to fingerprint
+ * duplicates with. It never looks at an option, a passage or an explanation. So
+ * selection now runs on this light shape and the full rows are fetched only for
+ * the questions that were actually picked.
+ */
+export interface PoolQuestion {
+  id: string;
+  paper_id: string;
+  number: number;
+  subject: string | null;
+  topic_id: string | null;
+  stem_en: string;
+  stem_hi: string | null;
+}
+
+/** Light pool for mock ASSEMBLY. Use questionPool when the full rows are wanted. */
+export async function questionPoolLight(paperType: string): Promise<PoolQuestion[]> {
+  const d = await openContentDb();
+  // No join to options at all, and only the columns the selection reads.
+  return d.getAllAsync<PoolQuestion>(
+    `SELECT q.id, q.paper_id, q.number, q.subject, q.topic_id, q.stem_en, q.stem_hi
+       FROM questions q
+       JOIN papers p ON p.id = q.paper_id
+      WHERE p.exam_code = ? AND p.paper_type = ?
+      ORDER BY q.id`,
+    currentExam(),
+    paperType
+  );
+}
+
+/**
+ * Full rows plus options for a specific set of ids, in the order given.
+ *
+ * The order matters: a mock's question order comes out of the seeded shuffle,
+ * and re-sorting here would silently produce a different paper from the same
+ * seed — which is what makes a resumed attempt show the same questions.
+ */
+export async function loadQuestionsByIds(ids: readonly string[]): Promise<LoadedQuestion[]> {
+  if (!ids.length) return [];
+  const d = await openContentDb();
+  const holes = ids.map(() => '?').join(',');
+
+  const questions = await d.getAllAsync<QuestionRow>(
+    `SELECT * FROM questions WHERE id IN (${holes})`,
+    ...ids
+  );
+  const options = await d.getAllAsync<OptionRow>(
+    `SELECT * FROM options WHERE question_id IN (${holes}) ORDER BY question_id, label`,
+    ...ids
+  );
+
+  const byQuestion = new Map<string, OptionRow[]>();
+  for (const o of options) {
+    const list = byQuestion.get(o.question_id);
+    if (list) list.push(o);
+    else byQuestion.set(o.question_id, [o]);
+  }
+  const byId = new Map(questions.map((q) => [q.id, q]));
+  // Rebuilt in the caller's order, dropping anything that has since gone —
+  // a missing id must not shift every question after it.
+  return ids
+    .map((id) => byId.get(id))
+    .filter((q): q is QuestionRow => q !== undefined)
+    .map((q) => ({ ...q, options: byQuestion.get(q.id) ?? [] }));
+}
+
 export async function questionPool(paperType: string): Promise<LoadedQuestion[]> {
   const d = await openContentDb();
   const questions = await d.getAllAsync<QuestionRow>(
@@ -505,7 +582,10 @@ export async function getPaper(
     const { questions } = buildMock(
       spec,
       type,
-      await questionPool(type),
+      // Light pool: this call only needs how many questions the mock has, in
+      // order to describe the paper. Loading their full text and options here
+      // would fetch the whole bank to produce a row count.
+      await questionPoolLight(type),
       spec.mode === 'weak' ? await wrongQuestionIds() : []
     );
     return mockPaper(spec, type, questions.length, mockLabel(spec));
@@ -535,12 +615,24 @@ export async function loadPaperQuestions(
   if (isMockId(paperId)) {
     const type = mockPaperType();
     const spec = parseMockId(paperId);
-    return buildMock(
+    // TWO STAGES, AND THIS IS WHAT FIXED "Loading paper…" HANGING.
+    //
+    // Choose from the light pool — seven columns, no options — then fetch the
+    // full rows for ONLY the questions that were picked. Assembling a
+    // 150-question mock used to pull all 899 questions with both stems,
+    // passages and explanations plus all 3,596 option rows across the bridge,
+    // and then discard five sixths of it.
+    const plan = buildMock(
       spec,
       type,
-      await questionPool(type),
+      await questionPoolLight(type),
       spec.mode === 'weak' ? await wrongQuestionIds() : []
-    ).questions;
+    );
+    const full = await loadQuestionsByIds(plan.questions.map((q) => q.id));
+    // buildMock renumbers 1..n so the palette and "Q 12 / 150" read like a real
+    // paper; that numbering lives on the plan, not on the stored row, so it is
+    // reapplied here rather than lost in the round trip.
+    return full.map((q, i) => ({ ...q, number: i + 1 }));
   }
 
   const d = await openContentDb();
