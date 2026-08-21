@@ -35,6 +35,31 @@ const DEVANAGARI = /[ऀ-ॿ꣠-ꣿ]/;
 // Gujarati block.
 const GUJARATI = /[઀-૿]/;
 
+/**
+ * The characters that can make up a word, as a character-class BODY for
+ * building regexes with.
+ *
+ * WHY NOT `\p{L}\p{N}\p{M}`
+ * ------------------------
+ * Two reasons, and the second is the one that decides it.
+ *
+ * 1. Unicode property escapes need the `u` flag, and nothing in this app has
+ *    ever used one. A regex literal is evaluated when its module loads, so if
+ *    the engine on the phone does not support the syntax the app does not show
+ *    an error — it fails to start. That is not a risk worth taking for a
+ *    convenience.
+ *
+ * 2. The three scripts below are the ones this app SHIPS FONTS FOR. Anything
+ *    outside them cannot be rendered as itself anyway, so a broader class
+ *    would be describing text this product does not have.
+ *
+ * The Indic blocks include their combining marks — matras, virama, nukta —
+ * which is the part a naive `[A-Za-z]`-style class gets wrong: those are not
+ * letters, and leaving them out splits "बाल" into "ब" and "ल".
+ */
+export const WORD_CHARS =
+  'A-Za-z0-9À-ÖØ-öø-ÿऀ-ॿ꣠-ꣿ઀-૿‌‍';
+
 /** Script of a single code point. Neutral characters resolve to 'latn'. */
 function scriptOfChar(ch: string): Script {
   if (DEVANAGARI.test(ch)) return 'deva';

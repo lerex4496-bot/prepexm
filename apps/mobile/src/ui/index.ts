@@ -8,3 +8,5 @@ export { PlanItemRow, RationaleNote } from './PlanItemRow';
 export { EmptyState, ErrorState, OfflineBadge } from './States';
 export { Screen } from './Screen';
 export { StepShell } from './StepShell';
+export { Markdown } from './markdown/Markdown';
+export { looksLikeMarkdown } from './markdown/parse';

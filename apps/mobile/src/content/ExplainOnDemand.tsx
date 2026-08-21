@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
-import { Text } from '@/ui';
+import { Markdown, Text } from '@/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useT } from '@/i18n/useT';
 import { useProfile } from '@/store/profile';
@@ -68,7 +68,7 @@ export function ExplainOnDemand({ question }: { question: LoadedQuestion }) {
   if (generated) {
     return (
       <View style={{ gap: spacing.xs }}>
-        <Text variant="body">{generated}</Text>
+        <Markdown text={generated} />
         <Text variant="caption" tone="muted">
           {t('review.generatedNow')}
         </Text>

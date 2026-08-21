@@ -1,0 +1,10 @@
+{
+  // Tests run in Node, so they need Node's globals (Buffer, node:fs, node:zlib)
+  // to type-check. The app's own tsconfig deliberately does NOT include them —
+  // nothing shipped to the phone may rely on a Node built-in.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"]
+  },
+  "exclude": ["node_modules"]
+}

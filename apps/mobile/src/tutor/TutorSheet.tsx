@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, View } from 'react-native';
 
-import { Card, Text } from '@/ui';
+import { Card, Markdown, Text } from '@/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useT } from '@/i18n/useT';
 import {
@@ -165,7 +165,7 @@ export function TutorSheet({
                 <View style={{ gap: spacing.lg }}>
                   {result.answer ? (
                     <Card>
-                      <Text variant="body">{result.answer}</Text>
+                      <Markdown text={result.answer} />
                       {result.provider ? (
                         <Text variant="caption" tone="muted" style={{ marginTop: spacing.sm }}>
                           {result.provider} · {result.model}

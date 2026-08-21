@@ -24,6 +24,16 @@ export interface Citation {
   chapter: string | null;
   pages: [number, number];
   excerpt: string;
+  /**
+   * Where the passage came from. Absent means the NCERT corpus, which is what
+   * the server returns and what every existing caller means.
+   *
+   * 'yours' is a PDF she added herself, read on the phone. It is shown
+   * differently — "your notes", not a class and a book — because the promise a
+   * citation makes is "go and read this", and pointing her at a class 7
+   * chapter that does not exist would break exactly that.
+   */
+  source?: 'ncert' | 'yours';
 }
 
 export interface TutorAnswer {

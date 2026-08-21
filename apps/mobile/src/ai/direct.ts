@@ -27,11 +27,15 @@ import Constants from 'expo-constants';
  * the content bundle. The model explains a known answer; it never picks one.
  * That is the same guarantee as the server path.
  *
- * The TUTOR CHAT is the part that loses something. Grounding there comes from
- * retrieval over the NCERT corpus, which lives on the server. Without it the
- * model answers from its own knowledge, so those replies carry no citations
- * and are labelled `grounded: false` — see askDirect below. The UI must show
- * that difference rather than let an ungrounded answer look like a cited one.
+ * The TUTOR CHAT is the part that loses something, though less than it used
+ * to. The NCERT corpus is server-only, so none of it is searchable here. What
+ * IS searchable is the PDFs she has added herself, which are read and indexed
+ * on the phone (src/docs/localDocs.ts) and passed to askDirect as extracts.
+ *
+ * So a chat answer is grounded when her own documents cover the question and
+ * ungrounded when they do not, and `grounded` reports which happened. The UI
+ * must keep showing that difference rather than let an answer from the model's
+ * own recollection look like a cited one.
  */
 
 type Extra = {
@@ -147,7 +151,12 @@ Write for a candidate preparing for the exam:
    distractor analysis is the most useful part — it teaches her to recognise
    plausible-but-wrong options under time pressure.
 
-Be concise and concrete. No preamble, no restating the question, no markdown.
+Be concise and concrete. No preamble, and do not restate the question.
+
+The app renders Markdown, so use a little of it and no more: **bold** the key
+term or the correct option, and put each distractor on its own "- " line. No
+headings — this is a few lines under a question, not a document.
+
 Write ONLY in {language}.`;
 
 /**
@@ -222,33 +231,80 @@ Prefer the terms and examples her syllabus uses over general ones.
 If you are not confident about something, say so plainly rather than guessing.
 She is revising from your answer, so a confident wrong answer costs her marks.
 
+FORMAT IT SO IT IS READABLE ON A PHONE. The app renders Markdown, so use it:
+- ## for a section heading, ### for a sub-heading.
+- **bold** for the term being defined, and for the words an examiner looks for.
+- "- " for bullets and "1. " for numbered steps, one point per line.
+- A blank line between paragraphs.
+- > for a definition worth memorising word for word.
+Do not write a wall of unbroken prose, and do not put a heading on a two-line
+answer — structure follows the length, not the other way round.
+
 {style}`;
 
+/** One extract from the student's own documents, to answer from. */
+export interface DirectSource {
+  n: number;
+  title: string;
+  page: number;
+  text: string;
+}
+
+// Appended only when there ARE extracts. The rule is the same one the server
+// enforces: answer from the passages, and say so when they fall short — an
+// answer that quietly drifts off her notes and into the model's own
+// recollection is worse than no answer, because it still carries citations.
+const GROUNDED_RULES = `
+THE STUDENT'S OWN NOTES ARE BELOW. Answer from them first.
+
+- Cite the extract you used as [1], [2] … inline, right where you use it.
+- If the extracts only partly cover the question, answer that part from them,
+  say plainly which part they do not cover, and only then add what you know.
+- Never attribute something to her notes that is not in the extracts.`;
+
+function sourceBlock(sources: DirectSource[]): string {
+  return sources
+    .map((s) => `[${s.n}] ${s.title}, page ${s.page}\n${s.text.slice(0, 1800)}`)
+    .join('\n\n---\n\n');
+}
+
 /**
- * Answer a free question with NO retrieval.
+ * Answer a free question, optionally from extracts of her own documents.
  *
- * Returns `grounded: false` because that is the truth: without the NCERT corpus
- * this is the model's own knowledge, not a cited textbook passage. The caller
- * is expected to show that, and the Ask screen does.
+ * `grounded` is the honest report of which of those two happened. Without
+ * sources this is the model's own knowledge — no NCERT corpus, no citations —
+ * and the Ask screen shows that difference rather than letting an ungrounded
+ * answer look like a cited one.
  */
 export async function askDirect(params: {
   message: string;
   style: string;
   history?: { role: string; content: string }[];
-}): Promise<{ text: string; provider: string; grounded: false }> {
+  sources?: DirectSource[];
+}): Promise<{ text: string; provider: string; grounded: boolean }> {
   const chain = [sarvam(), nvidia()].filter((p): p is Provider => p !== null);
   if (!chain.length) throw new DirectError('no model keys are bundled in this build');
 
+  const sources = params.sources ?? [];
   const convo = (params.history ?? [])
     .slice(-6)
     .map((t) => `${t.role === 'user' ? 'Student' : 'You'}: ${t.content}`)
     .join('\n');
-  const user = convo ? `Conversation so far:\n${convo}\n\nStudent: ${params.message}` : params.message;
+
+  const parts = [
+    convo ? `Conversation so far:\n${convo}` : '',
+    sources.length ? `Extracts from her documents:\n\n${sourceBlock(sources)}` : '',
+    `Student: ${params.message}`,
+  ].filter(Boolean);
+  const user = parts.join('\n\n');
+
+  const system =
+    TUTOR_SYSTEM.replace('{style}', params.style) + (sources.length ? `\n${GROUNDED_RULES}` : '');
 
   let lastError: Error | null = null;
   for (const p of chain) {
     try {
-      const text = await complete(p, TUTOR_SYSTEM.replace('{style}', params.style), user, {
+      const text = await complete(p, system, user, {
         // 800 could not produce what she asked for even when the prompt let
         // it: it is roughly a page, and she asked for six. A short answer to
         // a short question costs nothing extra, since this is a ceiling and
@@ -256,7 +312,7 @@ export async function askDirect(params: {
         maxTokens: 4000,
         temperature: 0.3,
       });
-      return { text, provider: `${p.name}/${p.model}`, grounded: false };
+      return { text, provider: `${p.name}/${p.model}`, grounded: sources.length > 0 };
     } catch (e) {
       lastError = e as Error;
     }

@@ -1,5 +1,5 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
     "paths": {
@@ -7,5 +7,9 @@
     },
     "types": ["jest"]
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  // Tests are Node programs and use Node's globals. They are type-checked by
+  // tsconfig.jest.json, which adds those types; leaving them in here would
+  // mean either failing this check or letting app code reach for `Buffer`.
+  "exclude": ["node_modules", "**/__tests__/**"]
 }

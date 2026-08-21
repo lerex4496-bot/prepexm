@@ -20,8 +20,17 @@
 
 import { useProfile } from '@/store/profile';
 import { TutorUnavailable, type Citation } from './client';
-import { askDirect, directAvailable } from '@/ai/direct';
+import { askDirect, directAvailable, type DirectSource } from '@/ai/direct';
 import { effectiveRegister, styleFor } from '@/ai/register';
+import {
+  NoTextLayer,
+  addLocalDoc,
+  deleteLocalDoc,
+  listLocalDocs,
+  searchLocalDocs,
+  type DocHit,
+} from '@/docs/localDocs';
+import { PdfTooLarge } from '@/docs/pdfText';
 
 export type ChatRole = 'user' | 'assistant';
 
@@ -67,6 +76,38 @@ function baseUrl(): string {
   return useProfile.getState().profile.apiBaseUrl?.replace(/\/+$/, '') ?? '';
 }
 
+/**
+ * The message for a feature that genuinely cannot work without the server.
+ *
+ * "no API address configured" is a note to whoever built this, shown to a
+ * student who pressed a button. What she needs to know is which of her options
+ * still works, so each caller names one — and Settings is offered second,
+ * because it is the fix only if someone has a server for her to point at.
+ */
+function needsServer(instead: string): TutorUnavailable {
+  return new TutorUnavailable(
+    `${instead} (This part needs the StudyMate server, and no address is set in Settings.)`
+  );
+}
+
+/** Turn retrieved extracts of her own PDFs into the citation shape the UI shows. */
+function toCitations(hits: DocHit[]): Citation[] {
+  return hits.map((h, i) => ({
+    n: i + 1,
+    subject: '',
+    class: 0,
+    book: h.title,
+    chapter: null,
+    pages: [h.page, h.page],
+    excerpt: h.text.slice(0, 400),
+    source: 'yours',
+  }));
+}
+
+function toSources(hits: DocHit[]): DirectSource[] {
+  return hits.map((h, i) => ({ n: i + 1, title: h.title, page: h.page, text: h.text }));
+}
+
 export async function sendChat(params: {
   message: string;
   history: { role: ChatRole; content: string }[];
@@ -75,34 +116,40 @@ export async function sendChat(params: {
 }): Promise<ChatResponse> {
   const base = baseUrl();
 
-  // No server: answer directly, and say plainly that it is ungrounded.
+  // No server: answer on the phone, and be exact about what backs the answer.
   //
-  // Register detection still runs on-device, so she is still answered in the
-  // language she wrote in. What is missing is retrieval: no NCERT extracts, so
-  // no citations and no "your books don't cover this" refusal. `grounded:false`
-  // carries that to the UI rather than letting it pass unnoticed.
+  // Register detection still runs on-device, so she is answered in the
+  // language she wrote in. Retrieval now runs on-device too, over the PDFs she
+  // has added herself — so this path IS grounded when her own notes cover the
+  // question, and honestly ungrounded when they do not. The NCERT corpus is
+  // still server-only; nothing here pretends otherwise.
   if (!base && directAvailable()) {
     // Her study medium is the fallback, NOT English — see effectiveRegister.
     const reg = effectiveRegister(params.message, useProfile.getState().profile.contentLang ?? 'en');
+    const hits = await searchLocalDocs(params.message).catch(() => [] as DocHit[]);
     const r = await askDirect({
       message: params.message,
       style: styleFor(reg),
       history: params.history,
+      sources: toSources(hits),
     });
     return {
       reply: r.text,
-      grounded: false,
-      reason: 'answered without your textbooks — no sources to show',
-      citations: [],
+      grounded: r.grounded,
+      reason: r.grounded ? null : 'answered without your textbooks — no sources to show',
+      citations: toCitations(hits),
       register: { lang: reg.lang, register: reg.register, confidence: reg.confidence, evidence: reg.evidence },
-      retrieval: { query: '', method: 'none (no server, so no textbook search)' },
+      retrieval: {
+        query: params.message,
+        method: hits.length ? 'your own documents, searched on this phone' : 'none (no textbooks on this phone)',
+      },
       provider: r.provider,
       isFallback: false,
       ms: 0,
     };
   }
 
-  if (!base) throw new TutorUnavailable('no API address configured');
+  if (!base) throw needsServer('The tutor cannot answer right now.');
 
   const ctrl = new AbortController();
   // Longer than the other calls: a chat turn can involve a translation pass
@@ -180,7 +227,7 @@ export interface WebAnswer {
 
 async function postForm<T>(path: string, form: FormData, timeoutMs = 120000): Promise<T> {
   const base = baseUrl();
-  if (!base) throw new TutorUnavailable('no API address configured');
+  if (!base) throw needsServer('That could not be sent.');
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -219,7 +266,17 @@ function readServerError(body: string): string | null {
   return null;
 }
 
+/**
+ * Read a photographed question.
+ *
+ * This one really is server-only: the OCR runs there, and there is no
+ * on-device equivalent to fall back to. So it says so in a sentence she can
+ * act on, and names the thing that does still work.
+ */
 export async function askPhoto(uri: string, exam?: string): Promise<PhotoAnswer> {
+  if (!baseUrl()) {
+    throw needsServer('Reading a photo is not available on this phone — type the question instead.');
+  }
   const form = new FormData();
   const name = uri.split('/').pop() || 'question.jpg';
   const ext = name.split('.').pop()?.toLowerCase();
@@ -235,7 +292,9 @@ export async function askPhoto(uri: string, exam?: string): Promise<PhotoAnswer>
 
 export async function askWeb(url: string, message?: string): Promise<WebAnswer> {
   const base = baseUrl();
-  if (!base) throw new TutorUnavailable('no API address configured');
+  if (!base) {
+    throw needsServer('Links cannot be opened on this phone — paste the text of the page instead.');
+  }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 90000);
   try {
@@ -259,7 +318,7 @@ export async function askWeb(url: string, message?: string): Promise<WebAnswer> 
 }
 
 export interface UserDoc {
-  id: number;
+  id: number | string;
   title: string;
   filename: string;
   pages: number;
@@ -267,9 +326,51 @@ export interface UserDoc {
   extractability: number;
   chunks: number;
   uploadedAt: string | null;
+  /** True when the PDF was read on the phone rather than by the server. */
+  local?: boolean;
 }
 
-export async function uploadDoc(uri: string, name: string, title?: string): Promise<UserDoc> {
+/**
+ * Add one of her PDFs.
+ *
+ * WITH a server this is unchanged: upload it, let the API extract and chunk
+ * it, and get back the same shape.
+ *
+ * WITHOUT one it is read on the phone (see src/docs/localDocs.ts) instead of
+ * failing. That failure was the bug: she picked her NEET syllabus and the app
+ * answered "no API address configured", which is neither her problem nor
+ * something she can act on.
+ */
+export async function uploadDoc(
+  uri: string,
+  name: string,
+  title?: string,
+  onProgress?: (done: number, total: number) => void
+): Promise<UserDoc> {
+  if (!baseUrl()) {
+    try {
+      const doc = await addLocalDoc(uri, name, title, onProgress);
+      return {
+        id: doc.id,
+        title: doc.title,
+        filename: doc.filename,
+        pages: doc.pages,
+        chars: doc.chars,
+        extractability: doc.extractability,
+        chunks: doc.chunks,
+        uploadedAt: new Date(doc.uploadedAt).toISOString(),
+        local: true,
+      };
+    } catch (e) {
+      // NoTextLayer and PdfTooLarge are already written for her and say what
+      // to do next; anything else gets a plain sentence rather than a stack.
+      if (e instanceof NoTextLayer || e instanceof PdfTooLarge) {
+        throw new TutorUnavailable(e.message);
+      }
+      throw new TutorUnavailable('That PDF could not be read on this phone.');
+    }
+  }
+
   const form = new FormData();
   form.append('file', { uri, name, type: 'application/pdf' } as unknown as Blob);
   if (title) form.append('title', title);
@@ -278,7 +379,19 @@ export async function uploadDoc(uri: string, name: string, title?: string): Prom
 
 export async function listDocs(): Promise<UserDoc[]> {
   const base = baseUrl();
-  if (!base) return [];
+  if (!base) {
+    return (await listLocalDocs()).map((d) => ({
+      id: d.id,
+      title: d.title,
+      filename: d.filename,
+      pages: d.pages,
+      chars: d.chars,
+      extractability: d.extractability,
+      chunks: d.chunks,
+      uploadedAt: new Date(d.uploadedAt).toISOString(),
+      local: true,
+    }));
+  }
   try {
     const r = await fetch(`${base}/api/docs`);
     if (!r.ok) return [];
@@ -288,8 +401,11 @@ export async function listDocs(): Promise<UserDoc[]> {
   }
 }
 
-export async function deleteDoc(id: number): Promise<void> {
+export async function deleteDoc(id: number | string): Promise<void> {
   const base = baseUrl();
-  if (!base) return;
+  if (!base) {
+    await deleteLocalDoc(String(id));
+    return;
+  }
   await fetch(`${base}/api/docs/${id}`, { method: 'DELETE' }).catch(() => undefined);
 }

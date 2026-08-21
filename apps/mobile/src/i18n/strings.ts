@@ -277,6 +277,14 @@ const en: Dict = {
   'ask.docSent': 'Adding {name}…',
   'ask.docAdded':
     'Added “{name}” ({pages} pages). It will be searched alongside your textbooks, and cited as your notes.',
+  // The on-device path says where the reading happened, because it changes
+  // what she can expect: it is searched, it is hers, and it never left the
+  // phone. See src/docs/localDocs.ts.
+  'ask.docAddedLocal':
+    'Added “{name}” — {pages} pages, read on this phone. Ask about it and the answer will quote the page it came from.',
+  'ask.docReading': 'Reading page {n} of {total}…',
+  'ask.yourNotes': 'your notes',
+  'ask.page': 'page {n}',
   'ask.noSources':
     'Answered without your textbooks — no sources to show. Check anything important.',
   'ask.unverified': 'FROM THE WEB · not verified against any textbook',

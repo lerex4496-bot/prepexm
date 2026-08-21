@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import { Card, Screen, Text } from '@/ui';
+import { Card, Markdown, Screen, Text, looksLikeMarkdown } from '@/ui';
 import { TAB_BAR_HEIGHT } from '@/ui/tabBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -304,18 +304,32 @@ export default function AskScreen() {
     ]);
     setBusy(true);
     try {
-      const doc = await uploadDoc(file.uri, file.name, file.name.replace(/\.pdf$/i, ''));
+      const doc = await uploadDoc(
+        file.uri,
+        file.name,
+        file.name.replace(/\.pdf$/i, ''),
+        // Reading a long PDF takes seconds, and a spinner that says nothing for
+        // that long reads as a hang. Every eighth page is often enough to look
+        // alive without re-rendering the transcript on every tick.
+        (done, total) => {
+          if (done % 8 !== 0 && done !== total) return;
+          const line = t('ask.docReading', { n: done, total });
+          setMessages((prev) =>
+            prev.map((m) => (m.id !== note.id ? m : { ...m, content: line }))
+          );
+        }
+      );
+      const added = t(doc.local ? 'ask.docAddedLocal' : 'ask.docAdded', {
+        name: doc.title,
+        pages: doc.pages,
+      });
       setMessages((prev) =>
-        prev.map((m) =>
-          m.id !== note.id
-            ? m
-            : { ...m, pending: false, content: t('ask.docAdded', { name: doc.title, pages: doc.pages }) }
-        )
+        prev.map((m) => (m.id !== note.id ? m : { ...m, pending: false, content: added }))
       );
     } catch (e) {
-      // The server's own wording is shown: "only 0% of pages have selectable
-      // text" tells her to use the camera instead, which a generic failure
-      // message never would.
+      // Whichever reader ran, its own wording is shown rather than a generic
+      // failure: "this PDF is a scan, photograph the page instead" tells her
+      // what to do next, and "could not add the document" does not.
       const detail = e instanceof TutorUnavailable ? e.message : t('ask.failed');
       setMessages((prev) =>
         prev.map((m) => (m.id !== note.id ? m : { ...m, pending: false, failed: true, content: detail }))
@@ -512,11 +526,13 @@ function Bubble({ message }: { message: ChatMessage }) {
   const mine = message.role === 'user';
 
   if (message.pending) {
+    // A pending message may carry its own progress line ("reading page 12 of
+    // 64"). That is worth more than the generic wait text, so it wins.
     return (
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
         <ActivityIndicator size="small" color={colors.inkMuted} />
         <Text variant="caption" tone="muted">
-          {t('ask.thinking')}
+          {message.content || t('ask.thinking')}
         </Text>
       </View>
     );
@@ -546,8 +562,14 @@ function Bubble({ message }: { message: ChatMessage }) {
           <Text variant="body" tone="secondary">
             {message.refusal}
           </Text>
-        ) : (
+        ) : mine || !looksLikeMarkdown(message.content) ? (
+          // Her own messages are never rendered as Markdown: she typed those
+          // characters and is entitled to see them back. A reply with no
+          // formatting in it takes the plain path too, so nothing can be
+          // mangled by a renderer it did not need.
           <Text variant="body">{message.content}</Text>
+        ) : (
+          <Markdown text={message.content} />
         )}
       </View>
 
@@ -604,13 +626,23 @@ function Bubble({ message }: { message: ChatMessage }) {
  */
 function CitationCard({ citation }: { citation: Citation }) {
   const { spacing } = useTheme();
+  const { t } = useT();
+  // A PDF she added herself has no class and no NCERT chapter. Printing
+  // "class 0" there would be worse than useless — a citation is a promise that
+  // she can go and check it, so it has to name something that exists.
+  const yours = citation.source === 'yours';
   return (
     <Card>
       <View style={{ gap: 3 }}>
         <Text variant="caption" tone="secondary">
-          [{citation.n}] {citation.book} · class {citation.class}
+          [{citation.n}] {citation.book}
+          {yours ? ` · ${t('ask.yourNotes')}` : ` · class ${citation.class}`}
         </Text>
-        {citation.chapter ? (
+        {yours ? (
+          <Text variant="caption" tone="muted">
+            {t('ask.page', { n: citation.pages[0] })}
+          </Text>
+        ) : citation.chapter ? (
           <Text variant="caption" tone="muted">
             {citation.chapter} · pp. {citation.pages[0]}–{citation.pages[1]}
           </Text>
